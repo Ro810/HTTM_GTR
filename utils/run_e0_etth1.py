@@ -1,8 +1,9 @@
-import importlib.util, csv, numpy as np, sys, json
+import importlib.util, csv, numpy as np, sys, json, os
 sys.stdout.reconfigure(encoding="utf-8")
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
-spec = importlib.util.spec_from_file_location("dc", "D:/HTTM/GTR-main/utils/detect_cycles.py"); dc = importlib.util.module_from_spec(spec); spec.loader.exec_module(dc)
-rows = list(csv.reader(open("D:/HTTM/GTR-main/dataset/ETTh1.csv", encoding="utf-8")))
+HERE = os.path.dirname(os.path.abspath(__file__))
+spec = importlib.util.spec_from_file_location("dc", os.path.join(HERE, "detect_cycles.py")); dc = importlib.util.module_from_spec(spec); spec.loader.exec_module(dc)
+rows = list(csv.reader(open(os.path.join(HERE, "..", "dataset", "ETTh1.csv"), encoding="utf-8")))
 data = np.array([[float(v) for v in r[1:]] for r in rows[1:]])
 train = data[:8640]
 res, r, R = dc.detect(train)
@@ -20,7 +21,7 @@ print("\non dinh theo do dai train (delta=0.02):")
 for n in [2160, 4320, 6480, 8640]:
     print(f"  {n} dong -> {dc.detect(train[:n])[0]['cycles']}")
 # luu ket qua tai lap
-json.dump({"dataset":"ETTh1","n_train":8640, **res}, open("D:/HTTM/GTR-main/cycles_ETTh1.json","w"), indent=1)
+json.dump({"dataset":"ETTh1","n_train":8640, **res}, open(os.path.join(HERE, "..", "cycles_ETTh1.json"),"w"), indent=1)
 # hinh
 fig, ax = plt.subplots(1, 2, figsize=(10, 3.6))
 ks = np.arange(0, 400)
@@ -35,4 +36,4 @@ ax[1].bar(m*24, ex, width=14, color=["#059669" if e >= 0.02 else "#9CA3AF" for e
 ax[1].axhline(0.02, color="#DC2626", ls="--", lw=1); ax[1].text(250, 0.012, "ngưỡng δ = 0,02", color="#DC2626", fontsize=8)
 ax[1].set_title("Bội số của 24 có nổi lên khỏi đường suy giảm không?", fontsize=10); ax[1].set_xlabel("độ trễ k = m×24"); ax[1].set_ylabel("độ nổi (excess)")
 ax[1].set_xticks(m*24); ax[1].tick_params(axis="x", labelsize=7, rotation=60)
-plt.tight_layout(); plt.savefig("D:/HTTM/etth1_acf_real.png", dpi=170)
+plt.tight_layout(); plt.savefig(os.path.join(HERE, "..", "..", "etth1_acf_real.png"), dpi=170)
