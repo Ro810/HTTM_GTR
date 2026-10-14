@@ -1,0 +1,101 @@
+[
+ {
+  "dataset": "ETTh1",
+  "n_train": 8640,
+  "author_L": 24,
+  "match": true,
+  "cycles": [
+   24
+  ],
+  "acf_at_cycles": [
+   0.7323563256288944
+  ],
+  "params": {
+   "K": 2,
+   "r_min": 0.2,
+   "tol": 0.05,
+   "delta": 0.02,
+   "k_max": 2880
+  }
+ },
+ {
+  "dataset": "ETTh2",
+  "n_train": 8640,
+  "author_L": 24,
+  "match": true,
+  "cycles": [
+   24
+  ],
+  "acf_at_cycles": [
+   0.7883038769253907
+  ],
+  "params": {
+   "K": 2,
+   "r_min": 0.2,
+   "tol": 0.05,
+   "delta": 0.02,
+   "k_max": 2880
+  }
+ },
+ {
+  "dataset": "ETTm1",
+  "n_train": 34560,
+  "author_L": 96,
+  "match": true,
+  "cycles": [
+   96
+  ],
+  "acf_at_cycles": [
+   0.7270201050865255
+  ],
+  "params": {
+   "K": 2,
+   "r_min": 0.2,
+   "tol": 0.05,
+   "delta": 0.02,
+   "k_max": 11520
+  }
+ },
+ {
+  "dataset": "ETTm2",
+  "n_train": 34560,
+  "author_L": 96,
+  "match": true,
+  "cycles": [
+   96,
+   336
+  ],
+  "acf_at_cycles": [
+   0.7900380730576658,
+   0.5348699099616148
+  ],
+  "params": {
+   "K": 2,
+   "r_min": 0.2,
+   "tol": 0.05,
+   "delta": 0.02,
+   "k_max": 11520
+  }
+ },
+ {
+  "dataset": "Electricity",
+  "n_train": 18412,
+  "author_L": 168,
+  "match": true,
+  "cycles": [
+   24,
+   168
+  ],
+  "acf_at_cycles": [
+   0.87452294759193,
+   0.8770169951698289
+  ],
+  "params": {
+   "K": 2,
+   "r_min": 0.2,
+   "tol": 0.05,
+   "delta": 0.02,
+   "k_max": 6137
+  }
+ }
+]

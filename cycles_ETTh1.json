@@ -1,0 +1,17 @@
+{
+ "dataset": "ETTh1",
+ "n_train": 8640,
+ "cycles": [
+  24
+ ],
+ "acf_at_cycles": [
+  0.7323563256224713
+ ],
+ "params": {
+  "K": 2,
+  "r_min": 0.2,
+  "tol": 0.05,
+  "delta": 0.02,
+  "k_max": 2880
+ }
+}
