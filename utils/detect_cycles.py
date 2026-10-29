@@ -47,11 +47,13 @@ def harmonic_excess(r, base, m):
     return float(r[k] - max(r[k - base], r[k + base]))
 
 
-def select_cycles(r, K=2, r_min=0.2, tol=0.05, k_max=None, delta=0.02):
+def select_cycles(r, K=2, r_min=0.2, tol=0.05, k_max=None, delta=0.02, nested=False):
     """Chu ky co so = dinh nho nhat du manh. Them dinh khac (cao nhat truoc) neu:
     - khong nam trong +-tol cua ung vien da chon, va
     - neu la boi so nguyen cua chu ky co so thi phai NOI LEN >= delta so voi cac boi so ke ben
-      (tranh chon 48, 72... chi vi ACF suy giam cham)."""
+      (tranh chon 48, 72... chi vi ACF suy giam cham).
+    nested=True (v2): chu ky phu BAT BUOC la boi so nguyen cua chu ky co so (ngay -> tuan -> nam),
+      loai cac dinh kieu 336 = 3,5 ngay tren ETTm2."""
     peaks = find_peaks(r, r_min=r_min, k_max=k_max)
     if not peaks:
         return []
@@ -63,19 +65,21 @@ def select_cycles(r, K=2, r_min=0.2, tol=0.05, k_max=None, delta=0.02):
         if not all(abs(k - c) / c > tol for c in chosen):
             continue
         m = round(k / base)
+        if nested and (m < 2 or abs(k - m * base) > tol * k):
+            continue
         if m >= 2 and abs(k - m * base) <= tol * k and harmonic_excess(r, base, m) < delta:
             continue
         chosen.append(k)
     return sorted(chosen)
 
 
-def detect(train, K=2, r_min=0.2, tol=0.05, delta=0.02):
+def detect(train, K=2, r_min=0.2, tol=0.05, delta=0.02, nested=False):
     """train (T, N) -> dict ket qua (de luu JSON, tai lap)."""
     R = channel_acf(train)
     r = np.nanmean(R, axis=0)
-    cyc = select_cycles(r, K=K, r_min=r_min, tol=tol, delta=delta)
+    cyc = select_cycles(r, K=K, r_min=r_min, tol=tol, delta=delta, nested=nested)
     return {"cycles": cyc, "acf_at_cycles": [float(r[c]) for c in cyc],
-            "params": {"K": K, "r_min": r_min, "tol": tol, "delta": delta, "k_max": len(r) // 3}}, r, R
+            "params": {"K": K, "r_min": r_min, "tol": tol, "delta": delta, "nested": nested, "k_max": len(r) // 3}}, r, R
 
 
 if __name__ == "__main__":

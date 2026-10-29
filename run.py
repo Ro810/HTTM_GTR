@@ -3,7 +3,10 @@ import os
 import torch
 from exp.exp_main import Exp_Main
 import random
+import math
 import numpy as np
+import pandas as pd
+from utils.detect_cycles import detect
 
 parser = argparse.ArgumentParser(description='Model family for Time Series Forecasting')
 
@@ -36,6 +39,16 @@ parser.add_argument('--pred_len', type=int, default=96, help='prediction sequenc
 parser.add_argument('--cycle', type=int, default=24, help='cycle length')
 parser.add_argument('--model_type', type=str, default='mlp', help='model type, options: [linear, mlp]')
 parser.add_argument('--use_revin', type=int, default=1, help='1: use revin or 0: no revin')
+
+# DACD
+parser.add_argument('--cycles', type=str, default='auto',
+                    help='GTRDACD: "auto" = detect by ACF on train split, or list like "24,168"')
+parser.add_argument('--dacd_mix', type=str, default='gate', help='GTRDACD: gate or uniform')
+parser.add_argument('--dacd_delta', type=float, default=0.02, help='GTRDACD: harmonic threshold for auto detection')
+parser.add_argument('--dacd_future', type=int, default=0,
+                    help='GTRDACD v3: 0 off, 1 add phase-aligned cycle template R_k on the forecast horizon, '
+                         '2 also remove R_k from the input window (residual)')
+parser.add_argument('--dacd_nested', type=int, default=0, help='GTRDACD v2: secondary cycles must be integer multiples of the base cycle')
 
 # PatchTST
 parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
@@ -98,6 +111,29 @@ parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple g
 parser.add_argument('--devices', type=str, default='0,1', help='device ids of multile gpus')
 parser.add_argument('--test_flop', action='store_true', default=False, help='See utils/tools for usage')
 
+def detect_train_cycles(args):
+    """DACD buoc 1: ACF tren dung phan TRAIN theo cach chia cua data_loader.py."""
+    path = os.path.join(args.root_path, args.data_path)
+    if args.data == 'PEMS':                      # Dataset_PEMS: .npz, train = 60% dau
+        values = np.load(path, allow_pickle=True)['data'][:, :, 0].astype(float)
+        n_train = int(len(values) * 0.6)
+    elif args.data == 'Solar':                   # Dataset_Solar: .txt khong header, train = 70% dau
+        values = np.loadtxt(path, delimiter=',')
+        n_train = int(len(values) * 0.7)
+    else:
+        values = pd.read_csv(path).drop(columns=['date']).values.astype(float)
+        if args.data in ('ETTh1', 'ETTh2'):
+            n_train = 12 * 30 * 24
+        elif args.data in ('ETTm1', 'ETTm2'):
+            n_train = 12 * 30 * 24 * 4
+        else:                                    # Dataset_Custom (Electricity, Traffic, Weather)
+            n_train = int(len(values) * 0.7)
+    res, _, _ = detect(values[:n_train], delta=args.dacd_delta, nested=bool(args.dacd_nested))
+    if not res['cycles']:
+        raise ValueError('DACD: no cycle detected on train split')
+    return res['cycles']
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
 
@@ -109,6 +145,13 @@ if __name__ == "__main__":
 
 
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
+
+    if args.model == 'GTRDACD':
+        if args.cycles == 'auto':
+            args.cycles = ','.join(str(c) for c in detect_train_cycles(args))
+        # data loader tra ve t mod args.cycle; dung lcm de moi L_k deu suy ra dung pha
+        args.cycle = math.lcm(*[int(c) for c in args.cycles.split(',')])
+        print('DACD cycles: {} (loader cycle = lcm = {})'.format(args.cycles, args.cycle))
 
     if args.use_gpu and args.use_multi_gpu:
         args.devices = args.devices.replace(' ', '')
