@@ -47,17 +47,26 @@ def harmonic_excess(r, base, m):
     return float(r[k] - max(r[k - base], r[k + base]))
 
 
-def select_cycles(r, K=2, r_min=0.2, tol=0.05, k_max=None, delta=0.02, nested=False):
+def refine_comb(r, base, M=5, tol=0.07):
+    """v4: tinh chinh chu ky co so = k trong +-tol*base cuc dai trung binh ACF tai k, 2k, ..., Mk.
+    Dinh don le co the lech vai buoc do nhieu (Weather: 141 thay vi 144); lech se cong don qua cac boi so."""
+    cand = range(max(2, int(base * (1 - tol))), int(base * (1 + tol)) + 1)
+    comb = {k: np.mean([r[m * k] for m in range(1, M + 1) if m * k < len(r)]) for k in cand}
+    return max(comb, key=comb.get)
+
+
+def select_cycles(r, K=2, r_min=0.2, tol=0.05, k_max=None, delta=0.02, nested=False, refine=False):
     """Chu ky co so = dinh nho nhat du manh. Them dinh khac (cao nhat truoc) neu:
     - khong nam trong +-tol cua ung vien da chon, va
     - neu la boi so nguyen cua chu ky co so thi phai NOI LEN >= delta so voi cac boi so ke ben
       (tranh chon 48, 72... chi vi ACF suy giam cham).
     nested=True (v2): chu ky phu BAT BUOC la boi so nguyen cua chu ky co so (ngay -> tuan -> nam),
-      loai cac dinh kieu 336 = 3,5 ngay tren ETTm2."""
+      loai cac dinh kieu 336 = 3,5 ngay tren ETTm2.
+    refine=True (v4): tinh chinh chu ky co so bang refine_comb truoc khi chon chu ky phu."""
     peaks = find_peaks(r, r_min=r_min, k_max=k_max)
     if not peaks:
         return []
-    base = min(peaks)
+    base = refine_comb(r, min(peaks)) if refine else min(peaks)
     chosen = [base]
     for k in sorted(peaks, key=lambda k: -r[k]):
         if len(chosen) >= K:
@@ -73,13 +82,13 @@ def select_cycles(r, K=2, r_min=0.2, tol=0.05, k_max=None, delta=0.02, nested=Fa
     return sorted(chosen)
 
 
-def detect(train, K=2, r_min=0.2, tol=0.05, delta=0.02, nested=False):
+def detect(train, K=2, r_min=0.2, tol=0.05, delta=0.02, nested=False, refine=False):
     """train (T, N) -> dict ket qua (de luu JSON, tai lap)."""
     R = channel_acf(train)
     r = np.nanmean(R, axis=0)
-    cyc = select_cycles(r, K=K, r_min=r_min, tol=tol, delta=delta, nested=nested)
+    cyc = select_cycles(r, K=K, r_min=r_min, tol=tol, delta=delta, nested=nested, refine=refine)
     return {"cycles": cyc, "acf_at_cycles": [float(r[c]) for c in cyc],
-            "params": {"K": K, "r_min": r_min, "tol": tol, "delta": delta, "nested": nested, "k_max": len(r) // 3}}, r, R
+            "params": {"K": K, "r_min": r_min, "tol": tol, "delta": delta, "nested": nested, "refine": refine, "k_max": len(r) // 3}}, r, R
 
 
 if __name__ == "__main__":

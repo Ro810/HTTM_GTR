@@ -1,0 +1,146 @@
+[
+ {
+  "dataset": "ETTh1",
+  "author_L": 24,
+  "cycles": [
+   24
+  ],
+  "acf": [
+   0.732
+  ],
+  "match": true
+ },
+ {
+  "dataset": "ETTh2",
+  "author_L": 24,
+  "cycles": [
+   24
+  ],
+  "acf": [
+   0.788
+  ],
+  "match": true
+ },
+ {
+  "dataset": "ETTm1",
+  "author_L": 96,
+  "cycles": [
+   96
+  ],
+  "acf": [
+   0.727
+  ],
+  "match": true
+ },
+ {
+  "dataset": "ETTm2",
+  "author_L": 96,
+  "cycles": [
+   96
+  ],
+  "acf": [
+   0.79
+  ],
+  "match": true
+ },
+ {
+  "dataset": "Weather",
+  "author_L": 144,
+  "cycles": [
+   144
+  ],
+  "acf": [
+   0.522
+  ],
+  "match": true
+ },
+ {
+  "dataset": "Solar",
+  "author_L": 144,
+  "cycles": [
+   144
+  ],
+  "acf": [
+   0.849
+  ],
+  "match": true
+ },
+ {
+  "dataset": "Electricity",
+  "author_L": 168,
+  "cycles": [
+   24,
+   168
+  ],
+  "acf": [
+   0.875,
+   0.877
+  ],
+  "match": true
+ },
+ {
+  "dataset": "Traffic",
+  "author_L": 168,
+  "cycles": [
+   24,
+   168
+  ],
+  "acf": [
+   0.738,
+   0.801
+  ],
+  "match": true
+ },
+ {
+  "dataset": "PEMS03",
+  "author_L": 288,
+  "cycles": [
+   288,
+   2016
+  ],
+  "acf": [
+   0.854,
+   0.817
+  ],
+  "match": true
+ },
+ {
+  "dataset": "PEMS04",
+  "author_L": 288,
+  "cycles": [
+   288,
+   2016
+  ],
+  "acf": [
+   0.821,
+   0.725
+  ],
+  "match": true
+ },
+ {
+  "dataset": "PEMS07",
+  "author_L": 288,
+  "cycles": [
+   288,
+   2016
+  ],
+  "acf": [
+   0.839,
+   0.807
+  ],
+  "match": true
+ },
+ {
+  "dataset": "PEMS08",
+  "author_L": 288,
+  "cycles": [
+   288,
+   2016
+  ],
+  "acf": [
+   0.82,
+   0.729
+  ],
+  "match": true
+ }
+]

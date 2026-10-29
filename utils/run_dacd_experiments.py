@@ -75,7 +75,8 @@ def grid_full(variants, seeds):
     cfgs = {'GTR': lambda ds: gtr(FULL[ds]['L']),
             'DACD': lambda ds: dacd('auto --dacd_nested 1', name='DACD'),
             'DACD-F1': lambda ds: dacd('auto --dacd_nested 1', name='DACD-F1', future=1),
-            'DACD-F2': lambda ds: dacd('auto --dacd_nested 1', name='DACD-F2', future=2)}
+            'DACD-F2': lambda ds: dacd('auto --dacd_nested 1', name='DACD-F2', future=2),
+            'DACD-R': lambda ds: dacd('auto --dacd_nested 1 --dacd_refine 1', name='DACD-R')}
     return [(ds, pl, cfgs[v](ds), s) for ds in FULL for pl in FULL[ds]['pls'] for v in variants for s in seeds]
 
 
@@ -148,11 +149,14 @@ if __name__ == '__main__':
     ap.add_argument('--grid', default='v2', help='v2 | v3 (CPU, bao cao 21/10) | full (12 dataset, GPU)')
     ap.add_argument('--variants', default='GTR,DACD,DACD-F1,DACD-F2', help='--grid full: bien the can chay')
     ap.add_argument('--seeds', default=','.join(map(str, SEEDS)), help='--grid full: danh sach seed')
+    ap.add_argument('--pred_lens', default='', help='--grid full: chi chay cac horizon nay, vd 96,12')
     a = ap.parse_args()
     if a.grid == 'full':
         DATA, OUT = FULL, os.path.join(OUT, 'full')
         LOG = os.path.join(OUT, 'logs')
         jobs = grid_full(a.variants.split(','), [int(x) for x in a.seeds.split(',')])
+        if a.pred_lens:
+            jobs = [j for j in jobs if str(j[1]) in a.pred_lens.split(',')]
     else:
         jobs = grid_v3() if a.grid == 'v3' else grid(a.extra)
     os.makedirs(LOG, exist_ok=True)

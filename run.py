@@ -49,6 +49,7 @@ parser.add_argument('--dacd_future', type=int, default=0,
                     help='GTRDACD v3: 0 off, 1 add phase-aligned cycle template R_k on the forecast horizon, '
                          '2 also remove R_k from the input window (residual)')
 parser.add_argument('--dacd_nested', type=int, default=0, help='GTRDACD v2: secondary cycles must be integer multiples of the base cycle')
+parser.add_argument('--dacd_refine', type=int, default=0, help='GTRDACD v4: refine the base cycle by mean ACF over its multiples')
 
 # PatchTST
 parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
@@ -128,7 +129,7 @@ def detect_train_cycles(args):
             n_train = 12 * 30 * 24 * 4
         else:                                    # Dataset_Custom (Electricity, Traffic, Weather)
             n_train = int(len(values) * 0.7)
-    res, _, _ = detect(values[:n_train], delta=args.dacd_delta, nested=bool(args.dacd_nested))
+    res, _, _ = detect(values[:n_train], delta=args.dacd_delta, nested=bool(args.dacd_nested), refine=bool(args.dacd_refine))
     if not res['cycles']:
         raise ValueError('DACD: no cycle detected on train split')
     return res['cycles']
