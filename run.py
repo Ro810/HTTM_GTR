@@ -51,6 +51,22 @@ parser.add_argument('--dacd_future', type=int, default=0,
 parser.add_argument('--dacd_nested', type=int, default=0, help='GTRDACD v2: secondary cycles must be integer multiples of the base cycle')
 parser.add_argument('--dacd_refine', type=int, default=0, help='GTRDACD v4: refine the base cycle by mean ACF over its multiples')
 
+# GTR inter-channel variants
+parser.add_argument('--gtr_agg', type=int, default=0,
+                    help='GTR/GTRAPCM: enable the author GTA single-token aggregation baseline')
+parser.add_argument('--apcm_patch_len', type=int, default=16,
+                    help='GTRAPCM: non-overlapping temporal patch length')
+parser.add_argument('--apcm_dim', type=int, default=32,
+                    help='GTRAPCM: hidden dimension of each channel-patch')
+parser.add_argument('--apcm_latents', type=int, default=8,
+                    help='GTRAPCM: number of latent channel groups')
+parser.add_argument('--apcm_dropout', type=float, default=0.1,
+                    help='GTRAPCM: dropout on the channel correction branch')
+parser.add_argument('--apcm_temperature', type=float, default=0.2,
+                    help='GTRAPCM: soft channel grouping temperature')
+parser.add_argument('--apcm_spectral', type=int, default=1,
+                    help='GTRAPCM: include patch FFT magnitudes in channel routing (1/0)')
+
 # PatchTST
 parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
 parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')

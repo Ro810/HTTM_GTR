@@ -69,6 +69,7 @@ class Model(nn.Module):
 
         self.Q = nn.Parameter(torch.zeros(self.cycle_len, self.enc_in), requires_grad=True)
         self.GTR = GTR(d_series=self.seq_len, c=self.enc_in, CI=self.individual)
+        self.GTR.agg = bool(getattr(configs, 'gtr_agg', 0))
         self.input_proj = nn.Linear(self.seq_len, self.d_model)
 
         self.model = nn.Sequential(
