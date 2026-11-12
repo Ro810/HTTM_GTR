@@ -23,7 +23,7 @@ class AdaptivePartialChannelMixer(nn.Module):
     """Patch-wise, permutation-equivariant channel mixer with latent groups."""
 
     def __init__(self, patch_len=16, hidden_dim=32, num_latents=8,
-                 dropout=0.1, temperature=0.2, spectral=True):
+                 dropout=0.1, temperature=0.2, spectral=True, num_channels=0):
         super().__init__()
         if patch_len <= 0:
             raise ValueError('apcm_patch_len must be positive')
@@ -60,6 +60,20 @@ class AdaptivePartialChannelMixer(nn.Module):
         nn.init.zeros_(self.patch_decoder.weight)
         nn.init.zeros_(self.patch_decoder.bias)
 
+        # Optional channel identity (APCM-NE).  Plain APCM is permutation-
+        # equivariant: it groups channels only by how a patch looks, so it cannot
+        # learn fixed relations such as "sensor A feeds sensor B".  Each channel
+        # gets a learnable embedding that adds a static routing score, in the
+        # spirit of the adaptive adjacency of Graph WaveNet and the spatial
+        # identity of STID.  The mixing weight starts at 0, so APCM-NE begins
+        # exactly at plain APCM.  Created last so the parameters above keep the
+        # same seeded initialization as plain APCM.
+        self.node_emb = None
+        if num_channels > 0:
+            self.node_emb = nn.Parameter(torch.empty(num_channels, hidden_dim))
+            nn.init.normal_(self.node_emb, std=hidden_dim ** -0.5)
+            self.node_weight = nn.Parameter(torch.zeros(1))
+
         # Kept for post-hoc analysis; populated with detached tensors in forward.
         self.last_channel_to_latent = None
         self.last_gate = None
@@ -90,6 +104,13 @@ class AdaptivePartialChannelMixer(nn.Module):
         # h and q are unit-normalized already; temperature alone controls the
         # softness.  A second sqrt(D) scale would make large-C assignments
         # almost uniform and collapse the latent groups.
+        if self.node_emb is not None:
+            if self.node_emb.shape[0] != channels:
+                raise ValueError('apcm_node_emb was built for {} channels, got {}'.format(
+                    self.node_emb.shape[0], channels))
+            # Static channel-to-group affinity, shared by all samples and patches.
+            static = F.normalize(self.node_emb, dim=-1) @ q_norm.t()  # (C, K)
+            scores = scores + self.node_weight * static
         scores = scores / self.temperature
         channel_to_latent = F.softmax(scores, dim=2)  # normalize over channels
         latent_tokens = torch.einsum('bpck,bpcd->bpkd', channel_to_latent, h)
@@ -150,6 +171,7 @@ class Model(nn.Module):
             dropout=getattr(configs, 'apcm_dropout', 0.1),
             temperature=getattr(configs, 'apcm_temperature', 0.2),
             spectral=bool(getattr(configs, 'apcm_spectral', 1)),
+            num_channels=self.enc_in if getattr(configs, 'apcm_node_emb', 0) else 0,
         )
 
     def forward(self, x, cycle_index):

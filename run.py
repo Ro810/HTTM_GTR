@@ -66,6 +66,8 @@ parser.add_argument('--apcm_temperature', type=float, default=0.2,
                     help='GTRAPCM: soft channel grouping temperature')
 parser.add_argument('--apcm_spectral', type=int, default=1,
                     help='GTRAPCM: include patch FFT magnitudes in channel routing (1/0)')
+parser.add_argument('--apcm_node_emb', type=int, default=0,
+                    help='GTRAPCM: add a learnable per-channel identity to the routing (APCM-NE, 1/0)')
 
 # PatchTST
 parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')

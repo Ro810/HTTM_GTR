@@ -63,6 +63,16 @@ VARIANTS = {
     # Ablation used to show whether frequency-aware routing contributes.
     'APCM-noFFT': ('--model GTRAPCM --apcm_patch_len 16 --apcm_dim 32 '
                    '--apcm_latents 8 --apcm_dropout 0.1 --apcm_temperature 0.2 --apcm_spectral 0'),
+    # APCM plus a learnable per-channel identity in the routing (starts at APCM).
+    'APCM-NE': ('--model GTRAPCM --apcm_patch_len 16 --apcm_dim 32 '
+                '--apcm_latents 8 --apcm_dropout 0.1 --apcm_temperature 0.2 --apcm_spectral 1 '
+                '--apcm_node_emb 1'),
+    # RevIN off, following the author's own ablation (paper Table 8, page 18).
+    # Placed after the dataset flags, so this --use_revin 0 overrides them.
+    'GTR-noRevIN': '--model GTR --use_revin 0',
+    'APCM-noRevIN': ('--model GTRAPCM --apcm_patch_len 16 --apcm_dim 32 '
+                     '--apcm_latents 8 --apcm_dropout 0.1 --apcm_temperature 0.2 --apcm_spectral 1 '
+                     '--use_revin 0'),
 }
 
 

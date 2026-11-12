@@ -82,3 +82,36 @@ So sánh tối thiểu:
 3. `GTRAPCM`: phương pháp đề xuất.
 
 Không kết luận từ một seed. Báo trung bình và độ lệch chuẩn của MSE/MAE qua seed 2024, 2025, 2026. Chỉ tuyên bố cải thiện ổn định nếu APCM tốt hơn GTR ở ít nhất 2/3 seed và MSE trung bình thấp hơn độ dao động giữa các seed.
+
+## 6. Thử nghiệm mới (12/11/2026): APCM-NE và tắt RevIN
+
+**APCM-NE** (`--apcm_node_emb 1`): thêm cho mỗi kênh một vector định danh học được, cộng một điểm "ái lực tĩnh" giữa kênh và nhóm vào bước gom nhóm. APCM gốc chỉ nhóm kênh theo hình dạng patch nên không học được quan hệ cố định giữa các cảm biến. Trọng số của phần tĩnh khởi tạo bằng 0, nên lúc đầu APCM-NE trùng APCM (đã có test). Chi phí thêm: C × 32 + 1 tham số.
+
+**GTR-noRevIN, APCM-noRevIN**: tắt RevIN theo ablation của chính tác giả (Bảng 8, trang 18), nơi Electricity cho MSE tốt hơn khi tắt RevIN. Phải chạy cả GTR và APCM để so công bằng.
+
+Kiểm tra cài đặt:
+
+```bash
+python -m pytest tests/test_gtr_apcm.py -q   # 5 test
+```
+
+Sàng lọc 1 seed (GTR và APCM seed 2024 đã có trong runs.jsonl nên không chạy lại):
+
+```bash
+# APCM-NE: PEMS04 và PEMS08 ở horizon 12, 96; Traffic và Electricity ở horizon 96 (6 lần chạy)
+python utils/run_apcm_experiments.py --stage full --only PEMS04,PEMS08,Traffic,Electricity \
+  --pred_lens 12,96 --seeds 2024 --variants APCM-NE
+
+# Tắt RevIN trên Electricity, horizon 96 và 336 (4 lần chạy)
+python utils/run_apcm_experiments.py --stage full --only Electricity \
+  --pred_lens 96,336 --seeds 2024 --variants GTR-noRevIN,APCM-noRevIN
+
+python utils/summarize_apcm.py
+```
+
+Quy tắc dừng, đặt trước khi chạy:
+
+- APCM-NE chỉ chạy đủ 3 seed nếu có MSE thấp hơn APCM (cùng seed 2024) ở ít nhất 4/5 cấu hình PEMS04, PEMS08 và Traffic. Ngược lại thì bỏ.
+- Tắt RevIN chỉ dùng nếu APCM-noRevIN thấp hơn APCM ở cả hai horizon. Khi báo cáo phải ghi rõ đây là đổi cấu hình theo Bảng 8, không phải cải tiến phương pháp.
+
+Ước lượng thời gian trên GPU (theo thời gian/epoch cũ): PEMS khoảng 3–5 phút mỗi lần, Electricity khoảng 10 phút, Traffic-96 khoảng 1,5 giờ.
