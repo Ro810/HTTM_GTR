@@ -27,10 +27,22 @@ SHORT = [12, 24, 48, 96]
 SEEDS = [2024, 2025, 2026]
 
 DATA = {
+    'ETTh1': dict(data='ETTh1', path='ETTh1.csv', enc=7, cycle=24, horizons=LONG,
+                  extra='--batch_size 256 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5'),
+    'ETTh2': dict(data='ETTh2', path='ETTh2.csv', enc=7, cycle=24, horizons=LONG,
+                  extra='--batch_size 256 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5'),
+    'ETTm1': dict(data='ETTm1', path='ETTm1.csv', enc=7, cycle=96, horizons=LONG,
+                  extra='--batch_size 256 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5'),
+    'ETTm2': dict(data='ETTm2', path='ETTm2.csv', enc=7, cycle=96, horizons=LONG,
+                  extra='--batch_size 256 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5'),
     'Electricity': dict(data='custom', path='electricity.csv', enc=321, cycle=168, horizons=LONG,
                         extra='--batch_size 32 --learning_rate 0.003 --train_epochs 30 --patience 5'),
     'Traffic': dict(data='custom', path='traffic.csv', enc=862, cycle=168, horizons=LONG,
                     extra='--individual 1 --batch_size 16 --learning_rate 0.003 --train_epochs 30 --patience 5'),
+    'Solar': dict(data='Solar', path='solar_AL.txt', enc=137, cycle=144, horizons=LONG,
+                  extra='--use_revin 0 --batch_size 64 --learning_rate 0.003 --train_epochs 30 --patience 5'),
+    'Weather': dict(data='custom', path='weather.csv', enc=21, cycle=144, horizons=LONG,
+                    extra='--batch_size 64 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5'),
     'PEMS03': dict(data='PEMS', path='PEMS03.npz', enc=358, cycle=288, horizons=SHORT,
                    extra='--use_revin 0 --batch_size 32 --learning_rate 0.003 --train_epochs 30 --patience 5'),
     'PEMS04': dict(data='PEMS', path='PEMS04.npz', enc=307, cycle=288, horizons=SHORT,
@@ -164,7 +176,7 @@ def main():
         if result is None:
             print('[{}/{}] FAILED {} (see log)'.format(index, len(jobs), key), flush=True)
             continue
-        with open(os.path.join(OUT, 'runs.jsonl'), 'a', encoding='utf-8') as handle:
+        with open(os.path.join(OUT, 'runs.jsonl'), 'a', encoding='utf-8', newline='') as handle:
             handle.write(json.dumps(result) + '\n')
         print('[{}/{}] {} mse={:.4f} mae={:.4f}'.format(
             index, len(jobs), key, result['mse'], result['mae']), flush=True)
