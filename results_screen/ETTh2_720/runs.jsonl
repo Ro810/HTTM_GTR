@@ -1,0 +1,9 @@
+{"key": "ETTh2_720_GTR_s2024", "dataset": "ETTh2", "pred_len": 720, "variant": "GTR", "seed": 2024, "mse": 0.4247872531414032, "mae": 0.4435292184352875, "best_vali": 0.6096698, "epochs": 7, "seconds": 198.8}
+{"key": "ETTh2_720_APCM_s2024", "dataset": "ETTh2", "pred_len": 720, "variant": "APCM", "seed": 2024, "mse": 0.42798683047294617, "mae": 0.44505074620246887, "best_vali": 0.6139192, "epochs": 7, "seconds": 74.6}
+{"key": "ETTh2_720_APCM-MAE_s2024", "dataset": "ETTh2", "pred_len": 720, "variant": "APCM-MAE", "seed": 2024, "mse": 0.423047810792923, "mae": 0.43668675422668457, "best_vali": 0.5390658, "epochs": 9, "seconds": 100.8}
+{"key": "ETTh2_720_APCM-HY_s2024", "dataset": "ETTh2", "pred_len": 720, "variant": "APCM-HY", "seed": 2024, "mse": 0.4256065785884857, "mae": 0.44206932187080383, "best_vali": 0.5731823, "epochs": 8, "seconds": 187.7}
+{"key": "ETTh2_720_APCM-FD5_s2024", "dataset": "ETTh2", "pred_len": 720, "variant": "APCM-FD5", "seed": 2024, "mse": 0.4229201674461365, "mae": 0.4400920271873474, "best_vali": 3.7652864, "epochs": 27, "seconds": 331.7}
+{"key": "ETTh2_720_APCM-FD8_s2024", "dataset": "ETTh2", "pred_len": 720, "variant": "APCM-FD8", "seed": 2024, "mse": 0.4147903323173523, "mae": 0.43605148792266846, "best_vali": 5.6626754, "epochs": 27, "seconds": 245.2}
+{"key": "ETTh2_720_APCM-FD5L1_s2024", "dataset": "ETTh2", "pred_len": 720, "variant": "APCM-FD5L1", "seed": 2024, "mse": 0.41279152035713196, "mae": 0.43419891595840454, "best_vali": 3.7303462, "epochs": 27, "seconds": 218.7}
+{"key": "ETTh2_720_GTR-FD5L1_s2024", "dataset": "ETTh2", "pred_len": 720, "variant": "GTR-FD5L1", "seed": 2024, "mse": 0.4111652672290802, "mae": 0.4336070418357849, "best_vali": 3.7303095, "epochs": 30, "seconds": 241.4}
+{"key": "ETTh2_720_GTR-MAE_s2024", "dataset": "ETTh2", "pred_len": 720, "variant": "GTR-MAE", "seed": 2024, "mse": 0.4180065393447876, "mae": 0.43345314264297485, "best_vali": 0.5361945, "epochs": 11, "seconds": 128.9}

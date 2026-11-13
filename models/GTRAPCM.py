@@ -174,6 +174,17 @@ class Model(nn.Module):
             num_channels=self.enc_in if getattr(configs, 'apcm_node_emb', 0) else 0,
         )
 
+        # Optional channel identity in the forecasting head (APCM-CE).  GTR
+        # shares one MLP across all channels, so two sensors with the same
+        # normalized window must get the same forecast.  A learnable per-channel
+        # offset in the d_model space lets the shared head specialize per
+        # channel (as in STID / channel-identity embeddings).  Zero init keeps
+        # the start point identical to plain APCM; created last to keep the
+        # seeded initialization of everything above unchanged.
+        self.channel_emb = None
+        if getattr(configs, 'chan_emb', 0):
+            self.channel_emb = nn.Parameter(torch.zeros(self.enc_in, self.d_model))
+
     def forward(self, x, cycle_index):
         if self.use_revin:
             seq_mean = torch.mean(x, dim=1, keepdim=True)
@@ -191,6 +202,8 @@ class Model(nn.Module):
         enhanced_features = gtr_features + self.APCM(gtr_features)
 
         input_proj = self.input_proj(enhanced_features)
+        if self.channel_emb is not None:
+            input_proj = input_proj + self.channel_emb  # (B, C, D) + (C, D)
         hidden = self.model(input_proj)
         output = self.output_proj(hidden + input_proj).permute(0, 2, 1)
 

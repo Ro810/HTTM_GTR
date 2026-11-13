@@ -1,0 +1,9 @@
+{"key": "ETTh2_96_GTR_s2024", "dataset": "ETTh2", "pred_len": 96, "variant": "GTR", "seed": 2024, "mse": 0.29219186305999756, "mae": 0.3426283895969391, "best_vali": 0.2130304, "epochs": 9, "seconds": 205.3}
+{"key": "ETTh2_96_APCM_s2024", "dataset": "ETTh2", "pred_len": 96, "variant": "APCM", "seed": 2024, "mse": 0.2960633635520935, "mae": 0.3457275331020355, "best_vali": 0.2172848, "epochs": 7, "seconds": 63.1}
+{"key": "ETTh2_96_APCM-MAE_s2024", "dataset": "ETTh2", "pred_len": 96, "variant": "APCM-MAE", "seed": 2024, "mse": 0.2869010269641876, "mae": 0.3333098888397217, "best_vali": 0.311513, "epochs": 8, "seconds": 76.9}
+{"key": "ETTh2_96_APCM-HY_s2024", "dataset": "ETTh2", "pred_len": 96, "variant": "APCM-HY", "seed": 2024, "mse": 0.29386061429977417, "mae": 0.34272900223731995, "best_vali": 0.2666314, "epochs": 7, "seconds": 124.7}
+{"key": "ETTh2_96_APCM-FD5_s2024", "dataset": "ETTh2", "pred_len": 96, "variant": "APCM-FD5", "seed": 2024, "mse": 0.2854260504245758, "mae": 0.33631548285484314, "best_vali": 1.2985346, "epochs": 8, "seconds": 170.6}
+{"key": "ETTh2_96_APCM-FD8_s2024", "dataset": "ETTh2", "pred_len": 96, "variant": "APCM-FD8", "seed": 2024, "mse": 0.2835445702075958, "mae": 0.33339178562164307, "best_vali": 1.9450449, "epochs": 9, "seconds": 103.8}
+{"key": "ETTh2_96_APCM-FD5L1_s2024", "dataset": "ETTh2", "pred_len": 96, "variant": "APCM-FD5L1", "seed": 2024, "mse": 0.27962589263916016, "mae": 0.3294588029384613, "best_vali": 1.3442, "epochs": 11, "seconds": 89.7}
+{"key": "ETTh2_96_GTR-FD5L1_s2024", "dataset": "ETTh2", "pred_len": 96, "variant": "GTR-FD5L1", "seed": 2024, "mse": 0.28009986877441406, "mae": 0.32706236839294434, "best_vali": 1.3261206, "epochs": 18, "seconds": 123.7}
+{"key": "ETTh2_96_GTR-MAE_s2024", "dataset": "ETTh2", "pred_len": 96, "variant": "GTR-MAE", "seed": 2024, "mse": 0.2845359742641449, "mae": 0.32875415682792664, "best_vali": 0.3064063, "epochs": 12, "seconds": 90.4}

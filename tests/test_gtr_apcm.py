@@ -101,3 +101,29 @@ def test_apcm_node_emb_rejects_wrong_channel_count():
     except ValueError:
         return
     raise AssertionError('expected a ValueError for a channel-count mismatch')
+
+
+def test_default_loss_matches_author_mse():
+    import torch.nn as nn
+    from utils.losses import ForecastLoss
+    pred, true = torch.randn(4, 12, 7), torch.randn(4, 12, 7)
+    assert torch.allclose(ForecastLoss('mse', 0.0)(pred, true), nn.MSELoss()(pred, true))
+    # Pure frequency loss and mixed losses are finite and differentiable.
+    pred.requires_grad_(True)
+    for kind in ('mae', 'huber', 'mse_mae'):
+        loss = ForecastLoss(kind, 0.5)(pred, true)
+        loss.backward()
+        assert torch.isfinite(loss)
+
+
+def test_channel_embedding_starts_at_apcm():
+    cfg = configs()
+    torch.manual_seed(7)
+    plain = GTRAPCM.Model(cfg).eval()
+    torch.manual_seed(7)
+    with_ce = GTRAPCM.Model(configs(chan_emb=1)).eval()
+    x = torch.randn(2, cfg.seq_len, cfg.enc_in)
+    idx = torch.tensor([1, 5])
+    with torch.no_grad():
+        assert torch.allclose(plain(x, idx), with_ce(x, idx))
+    assert with_ce.channel_emb.shape == (cfg.enc_in, cfg.d_model)

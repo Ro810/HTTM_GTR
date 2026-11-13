@@ -19,7 +19,7 @@ import time
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, 'results_apcm')
+OUT = os.path.join(ROOT, os.environ.get('APCM_OUT', 'results_apcm'))
 LOG = os.path.join(OUT, 'logs')
 
 LONG = [96, 192, 336, 720]
@@ -74,6 +74,28 @@ VARIANTS = {
                      '--apcm_latents 8 --apcm_dropout 0.1 --apcm_temperature 0.2 --apcm_spectral 1 '
                      '--use_revin 0'),
 }
+
+# 13/11/2026: training-objective and channel-identity variants (see
+# docs/APCM_PLUS_RUN_GUIDE.md).  Suffixes are appended to the base APCM / GTR
+# flags so every variant differs from its base in exactly the listed flags.
+_APCM = VARIANTS['APCM']
+_EXTRA = {
+    'MAE': '--loss mae',
+    'HY': '--loss mse_mae',
+    'FD5': '--loss_freq 0.5',
+    'FD8': '--loss_freq 0.8',
+    'FD5L1': '--loss mae --loss_freq 0.5',
+    'CE': '--chan_emb 1',
+    'CE-FD5L1': '--chan_emb 1 --loss mae --loss_freq 0.5',
+    'CE-FD8': '--chan_emb 1 --loss_freq 0.8',
+    'CE-HY': '--chan_emb 1 --loss mse_mae',
+}
+for _name, _flags in _EXTRA.items():
+    VARIANTS['APCM-' + _name] = _APCM + ' ' + _flags
+    # Same objective on the author's GTR: needed to show how much of the gain
+    # comes from the loss alone (fair ablation).  CE needs APCM, so skip it.
+    if not _name.startswith('CE'):
+        VARIANTS['GTR-' + _name] = '--model GTR ' + _flags
 
 
 def job_key(dataset, horizon, variant, seed):

@@ -1,0 +1,10 @@
+9 jobs to run (results are resumable)
+[1/9] ETTh2_96_GTR_s2024 mse=0.2922 mae=0.3426
+[2/9] ETTh2_96_APCM_s2024 mse=0.2961 mae=0.3457
+[3/9] ETTh2_96_APCM-MAE_s2024 mse=0.2869 mae=0.3333
+[4/9] ETTh2_96_APCM-HY_s2024 mse=0.2939 mae=0.3427
+[5/9] ETTh2_96_APCM-FD5_s2024 mse=0.2854 mae=0.3363
+[6/9] ETTh2_96_APCM-FD8_s2024 mse=0.2835 mae=0.3334
+[7/9] ETTh2_96_APCM-FD5L1_s2024 mse=0.2796 mae=0.3295
+[8/9] ETTh2_96_GTR-FD5L1_s2024 mse=0.2801 mae=0.3271
+[9/9] ETTh2_96_GTR-MAE_s2024 mse=0.2845 mae=0.3288

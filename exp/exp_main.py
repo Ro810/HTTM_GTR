@@ -4,6 +4,7 @@ from models import Informer, Autoformer, Transformer, DLinear, Linear, NLinear, 
     iTransformer, TimeXer, GTR, GTRDLinear, GTRPatchTST, GTRiTransformer, GTRDACD, GTRAPCM
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
+from utils.losses import ForecastLoss
 
 import numpy as np
 import torch
@@ -60,8 +61,8 @@ class Exp_Main(Exp_Basic):
         return model_optim
 
     def _select_criterion(self):
-        criterion = nn.MSELoss()
-        return criterion
+        # Default (--loss mse --loss_freq 0) is exactly the author's nn.MSELoss().
+        return ForecastLoss(self.args.loss, getattr(self.args, 'loss_freq', 0.0))
 
     def vali(self, vali_data, vali_loader, criterion):
         total_loss = []

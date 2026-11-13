@@ -68,6 +68,8 @@ parser.add_argument('--apcm_spectral', type=int, default=1,
                     help='GTRAPCM: include patch FFT magnitudes in channel routing (1/0)')
 parser.add_argument('--apcm_node_emb', type=int, default=0,
                     help='GTRAPCM: add a learnable per-channel identity to the routing (APCM-NE, 1/0)')
+parser.add_argument('--chan_emb', type=int, default=0,
+                    help='GTRAPCM: learnable per-channel embedding added to the d_model features (APCM-CE, 1/0)')
 
 # PatchTST
 parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
@@ -118,7 +120,10 @@ parser.add_argument('--batch_size', type=int, default=128, help='batch size of t
 parser.add_argument('--patience', type=int, default=5, help='early stopping patience')
 parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
 parser.add_argument('--des', type=str, default='test', help='exp description')
-parser.add_argument('--loss', type=str, default='mse', help='loss function')
+parser.add_argument('--loss', type=str, default='mse',
+                    help='time-domain training loss: mse (author default), mae, huber, mse_mae')
+parser.add_argument('--loss_freq', type=float, default=0.0,
+                    help='weight a of the FreDF-style frequency loss: a*|FFT err| + (1-a)*time loss; 0 = off')
 parser.add_argument('--lradj', type=str, default='type3', help='adjust learning rate')
 parser.add_argument('--pct_start', type=float, default=0.3, help='pct_start')
 parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
