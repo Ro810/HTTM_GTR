@@ -1,0 +1,83 @@
+-u run.py --is_training 1 --root_path ./dataset/ --data_path ETTm2.csv --model_id APCM_MSESEL_ETTm2_720_APCM_s2025 --data ETTm2 --features M --seq_len 96 --pred_len 720 --enc_in 7 --cycle 96 --batch_size 256 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5 --model GTRAPCM --apcm_patch_len 16 --apcm_dim 32 --apcm_latents 8 --apcm_dropout 0.1 --apcm_temperature 0.2 --apcm_spectral 1 --itr 1 --random_seed 2025 --num_workers 0
+Args in experiment:
+Namespace(random_seed=2025, is_training=1, model_id='APCM_MSESEL_ETTm2_720_APCM_s2025', model='GTRAPCM', data='ETTm2', root_path='./dataset/', data_path='ETTm2.csv', features='M', target='OT', freq='h', checkpoints='./checkpoints/', seq_len=96, label_len=0, pred_len=720, cycle=96, model_type='mlp', use_revin=1, cycles='auto', dacd_mix='gate', dacd_delta=0.02, dacd_future=0, dacd_nested=0, dacd_refine=0, gtr_agg=0, apcm_patch_len=16, apcm_dim=32, apcm_latents=8, apcm_dropout=0.1, apcm_temperature=0.2, apcm_spectral=1, apcm_node_emb=0, chan_emb=0, fc_dropout=0.05, head_dropout=0.0, patch_len=16, stride=8, padding_patch='end', revin=0, affine=0, subtract_last=0, decomposition=0, kernel_size=25, individual=0, rnn_type='gru', dec_way='pmf', seg_len=48, channel_id=1, embed_type=0, enc_in=7, dec_in=7, c_out=7, d_model=512, n_heads=8, e_layers=2, d_layers=1, d_ff=2048, moving_avg=25, factor=1, distil=True, dropout=0.5, embed='timeF', activation='gelu', output_attention=False, do_predict=False, num_workers=0, itr=1, train_epochs=30, batch_size=256, patience=5, learning_rate=0.001, des='test', loss='mse', loss_freq=0.0, lradj='type3', pct_start=0.3, use_amp=False, use_gpu=True, gpu=0, use_multi_gpu=False, devices='0,1', test_flop=False)
+Use GPU: cuda:0
+>>>>>>>start training : APCM_MSESEL_ETTm2_720_APCM_s2025_GTRAPCM_ETTm2_ftM_sl96_pl720_cycle96_seed2025>>>>>>>>>>>>>>>>>>>>>>>>>>
+train 33745
+val 10801
+	iters: 100, epoch: 1 | loss: 0.7521717
+	speed: 0.0452s/iter; left time: 173.2710s
+Epoch: 1 cost time: 4.059367656707764
+Epoch: 1, Steps: 131 | Train Loss: 0.6297311 Vali Loss: 0.2997214 Vali MSE: 0.2997214 Vali MAE: 0.3761983
+Validation selection metric decreased (inf --> 0.299721).  Saving model ...
+Updating learning rate to 0.001
+	iters: 100, epoch: 2 | loss: 0.5179411
+	speed: 0.0420s/iter; left time: 155.3002s
+Epoch: 2 cost time: 3.319776773452759
+Epoch: 2, Steps: 131 | Train Loss: 0.5756414 Vali Loss: 0.2955208 Vali MSE: 0.2955208 Vali MAE: 0.3714907
+Validation selection metric decreased (0.299721 --> 0.295521).  Saving model ...
+Updating learning rate to 0.001
+	iters: 100, epoch: 3 | loss: 0.5732116
+	speed: 0.0405s/iter; left time: 144.6632s
+Epoch: 3 cost time: 3.2353053092956543
+Epoch: 3, Steps: 131 | Train Loss: 0.5319787 Vali Loss: 0.2946879 Vali MSE: 0.2946879 Vali MAE: 0.3704000
+Validation selection metric decreased (0.295521 --> 0.294688).  Saving model ...
+Updating learning rate to 0.001
+	iters: 100, epoch: 4 | loss: 0.4599158
+	speed: 0.0408s/iter; left time: 140.4186s
+Epoch: 4 cost time: 3.282377004623413
+Epoch: 4, Steps: 131 | Train Loss: 0.5117434 Vali Loss: 0.2946644 Vali MSE: 0.2946644 Vali MAE: 0.3711336
+Validation selection metric decreased (0.294688 --> 0.294664).  Saving model ...
+Updating learning rate to 0.0008
+	iters: 100, epoch: 5 | loss: 0.4058973
+	speed: 0.0417s/iter; left time: 137.8336s
+Epoch: 5 cost time: 3.2618250846862793
+Epoch: 5, Steps: 131 | Train Loss: 0.4928652 Vali Loss: 0.2945817 Vali MSE: 0.2945817 Vali MAE: 0.3697955
+Validation selection metric decreased (0.294664 --> 0.294582).  Saving model ...
+Updating learning rate to 0.0006400000000000002
+	iters: 100, epoch: 6 | loss: 0.5082781
+	speed: 0.0414s/iter; left time: 131.5999s
+Epoch: 6 cost time: 3.2105300426483154
+Epoch: 6, Steps: 131 | Train Loss: 0.4742655 Vali Loss: 0.2971650 Vali MSE: 0.2971650 Vali MAE: 0.3718417
+EarlyStopping counter: 1 out of 5
+Updating learning rate to 0.0005120000000000001
+	iters: 100, epoch: 7 | loss: 0.5070700
+	speed: 0.0397s/iter; left time: 120.7798s
+Epoch: 7 cost time: 3.157557964324951
+Epoch: 7, Steps: 131 | Train Loss: 0.4598628 Vali Loss: 0.2944531 Vali MSE: 0.2944531 Vali MAE: 0.3706027
+Validation selection metric decreased (0.294582 --> 0.294453).  Saving model ...
+Updating learning rate to 0.0004096000000000001
+	iters: 100, epoch: 8 | loss: 0.4566686
+	speed: 0.0403s/iter; left time: 117.3393s
+Epoch: 8 cost time: 3.1940789222717285
+Epoch: 8, Steps: 131 | Train Loss: 0.4493636 Vali Loss: 0.2968891 Vali MSE: 0.2968891 Vali MAE: 0.3715572
+EarlyStopping counter: 1 out of 5
+Updating learning rate to 0.0003276800000000001
+	iters: 100, epoch: 9 | loss: 0.4697796
+	speed: 0.0412s/iter; left time: 114.6236s
+Epoch: 9 cost time: 3.292029619216919
+Epoch: 9, Steps: 131 | Train Loss: 0.4401149 Vali Loss: 0.2948913 Vali MSE: 0.2948913 Vali MAE: 0.3708950
+EarlyStopping counter: 2 out of 5
+Updating learning rate to 0.0002621440000000001
+	iters: 100, epoch: 10 | loss: 0.3752797
+	speed: 0.0396s/iter; left time: 105.0205s
+Epoch: 10 cost time: 3.161184787750244
+Epoch: 10, Steps: 131 | Train Loss: 0.4321097 Vali Loss: 0.2967527 Vali MSE: 0.2967527 Vali MAE: 0.3718487
+EarlyStopping counter: 3 out of 5
+Updating learning rate to 0.0002097152000000001
+	iters: 100, epoch: 11 | loss: 0.3814794
+	speed: 0.0404s/iter; left time: 101.8493s
+Epoch: 11 cost time: 3.2246341705322266
+Epoch: 11, Steps: 131 | Train Loss: 0.4280531 Vali Loss: 0.2958819 Vali MSE: 0.2958819 Vali MAE: 0.3721622
+EarlyStopping counter: 4 out of 5
+Updating learning rate to 0.0001677721600000001
+	iters: 100, epoch: 12 | loss: 0.4603023
+	speed: 0.0400s/iter; left time: 95.7179s
+Epoch: 12 cost time: 3.105004072189331
+Epoch: 12, Steps: 131 | Train Loss: 0.4243238 Vali Loss: 0.2975905 Vali MSE: 0.2975905 Vali MAE: 0.3735807
+EarlyStopping counter: 5 out of 5
+Early stopping
+Best checkpoint | Vali Loss: 0.2944146 Vali MSE: 0.2944146 Vali MAE: 0.3705756
+>>>>>>>testing : APCM_MSESEL_ETTm2_720_APCM_s2025_GTRAPCM_ETTm2_ftM_sl96_pl720_cycle96_seed2025<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+test 10801
+mse:0.417642205953598, mae:0.40878546237945557

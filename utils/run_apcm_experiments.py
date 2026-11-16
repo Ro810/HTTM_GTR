@@ -6,7 +6,8 @@ Fast screening (one seed, two representative datasets):
 Confirm selected datasets with three seeds and all horizons:
     python utils/run_apcm_experiments.py --stage full --only Electricity,Traffic
 
-Runs are resumable. Results and logs are stored under results_apcm/.
+Runs are resumable. New, validation-MSE-selected results and logs are stored
+under results_apcm_mse/ by default. Set APCM_OUT to use another directory.
 """
 
 import argparse
@@ -19,7 +20,7 @@ import time
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, os.environ.get('APCM_OUT', 'results_apcm'))
+OUT = os.path.join(ROOT, os.environ.get('APCM_OUT', 'results_apcm_mse'))
 LOG = os.path.join(OUT, 'logs')
 
 LONG = [96, 192, 336, 720]
@@ -102,6 +103,26 @@ def job_key(dataset, horizon, variant, seed):
     return '{}_{}_{}_s{}'.format(dataset, horizon, variant, seed)
 
 
+def parse_run_output(output):
+    """Extract metrics from one corrected run, or return None for legacy logs."""
+    test_metrics = re.findall(r'mse:([\d.eE+-]+), mae:([\d.eE+-]+)', output)
+    selected_validation = re.findall(
+        r'Best checkpoint \| Vali Loss: ([\d.eE+-]+) '
+        r'Vali MSE: ([\d.eE+-]+) Vali MAE: ([\d.eE+-]+)',
+        output,
+    )
+    if not test_metrics or not selected_validation:
+        return None
+    best_vali_loss, best_vali_mse, best_vali_mae = map(float, selected_validation[-1])
+    return {
+        'mse': float(test_metrics[-1][0]),
+        'mae': float(test_metrics[-1][1]),
+        'best_vali_loss': best_vali_loss,
+        'best_vali_mse': best_vali_mse,
+        'best_vali_mae': best_vali_mae,
+    }
+
+
 def completed_keys():
     path = os.path.join(OUT, 'runs.jsonl')
     if not os.path.exists(path):
@@ -148,7 +169,7 @@ def run_one(dataset, horizon, variant, seed, threads):
     key = job_key(dataset, horizon, variant, seed)
     args = (
         '-u run.py --is_training 1 --root_path ./dataset/ --data_path {path} '
-        '--model_id APCM_{key} --data {data} --features M --seq_len 96 '
+        '--model_id APCM_MSESEL_{key} --data {data} --features M --seq_len 96 '
         '--pred_len {horizon} --enc_in {enc} --cycle {cycle} {extra} {model_args} '
         '--itr 1 --random_seed {seed} --num_workers 0'
     ).format(path=cfg['path'], key=key, data=cfg['data'], horizon=horizon,
@@ -164,19 +185,18 @@ def run_one(dataset, horizon, variant, seed, threads):
     with open(os.path.join(LOG, key + '.log'), 'w', encoding='utf-8') as handle:
         handle.write(args + '\n' + output)
 
-    metrics = re.findall(r'mse:([\d.eE+-]+), mae:([\d.eE+-]+)', output)
-    if process.returncode != 0 or not metrics:
+    parsed = parse_run_output(output)
+    if process.returncode != 0 or parsed is None:
         return key, None
-    validation = [float(v) for v in re.findall(r'Vali Loss: ([\d.eE+-]+)', output)]
     return key, {
         'key': key,
         'dataset': dataset,
         'pred_len': horizon,
         'variant': variant,
         'seed': seed,
-        'mse': float(metrics[-1][0]),
-        'mae': float(metrics[-1][1]),
-        'best_vali': min(validation) if validation else None,
+        **parsed,
+        'selection_metric': 'vali_mse',
+        'protocol': 'val_mse_v2',
         'epochs': len(re.findall(r'Epoch: \d+ cost time', output)),
         'seconds': round(time.time() - started, 1),
     }

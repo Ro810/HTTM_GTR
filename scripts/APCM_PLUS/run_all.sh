@@ -2,12 +2,13 @@
 # APCM+ full benchmark (13/11/2026).  Run from the GTR-main folder:
 #     bash scripts/APCM_PLUS/run_all.sh            # everything, in priority order
 #     bash scripts/APCM_PLUS/run_all.sh stage1     # only the 1-seed screen
-# Every command is resumable: finished jobs (by key in results_apcm/runs.jsonl)
+# Every command is resumable: finished jobs (by key in results_apcm_mse/runs.jsonl)
 # are skipped, so it is safe to stop (Ctrl+C) and start again.
 set -u
 cd "$(dirname "$0")/../.."
 
 PY=${PY:-python}
+export APCM_OUT=${APCM_OUT:-results_apcm_mse}
 RUN="$PY utils/run_apcm_experiments.py --stage full"
 NEW="GTR-FD5L1,APCM-FD5L1,APCM-CE-FD5L1"       # proposed method + ablation
 FAST="ETTh1,ETTh2,ETTm1,ETTm2,Weather,Solar,PEMS03,PEMS04,PEMS08,Electricity"
@@ -33,7 +34,8 @@ stage3() {
   $RUN --only Traffic --variants GTR-FD5L1
 }
 
-case "${1:-all}" in
+MODE="${1:-all}"
+case "$MODE" in
   stage1) stage1 ;;
   stage2) stage2 ;;
   stage3) stage3 ;;
@@ -41,6 +43,10 @@ case "${1:-all}" in
   *) echo "usage: $0 [stage1|stage2|stage3|all]"; exit 1 ;;
 esac
 
-$PY utils/summarize_apcm.py > results_apcm/summary.txt
-$PY utils/select_apcm_plus.py --loss FD5L1 > results_apcm/apcm_plus.txt
-echo "Done. Send back the whole results_apcm/ folder (runs.jsonl, logs/, *.csv, *.txt)."
+$PY utils/summarize_apcm.py > "$APCM_OUT/summary.txt"
+if [ "$MODE" = "stage1" ]; then
+  $PY utils/select_apcm_plus.py --loss FD5L1 > "$APCM_OUT/apcm_plus.txt"
+else
+  $PY utils/select_apcm_plus.py --loss FD5L1 --selection_seeds 2024,2025,2026 > "$APCM_OUT/apcm_plus.txt"
+fi
+echo "Done. Send back the whole $APCM_OUT/ folder (runs.jsonl, logs/, *.csv, *.txt)."

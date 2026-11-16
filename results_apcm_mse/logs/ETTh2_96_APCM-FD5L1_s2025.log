@@ -1,0 +1,43 @@
+-u run.py --is_training 1 --root_path ./dataset/ --data_path ETTh2.csv --model_id APCM_MSESEL_ETTh2_96_APCM-FD5L1_s2025 --data ETTh2 --features M --seq_len 96 --pred_len 96 --enc_in 7 --cycle 24 --batch_size 256 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5 --model GTRAPCM --apcm_patch_len 16 --apcm_dim 32 --apcm_latents 8 --apcm_dropout 0.1 --apcm_temperature 0.2 --apcm_spectral 1 --loss mae --loss_freq 0.5 --itr 1 --random_seed 2025 --num_workers 0
+Args in experiment:
+Namespace(random_seed=2025, is_training=1, model_id='APCM_MSESEL_ETTh2_96_APCM-FD5L1_s2025', model='GTRAPCM', data='ETTh2', root_path='./dataset/', data_path='ETTh2.csv', features='M', target='OT', freq='h', checkpoints='./checkpoints/', seq_len=96, label_len=0, pred_len=96, cycle=24, model_type='mlp', use_revin=1, cycles='auto', dacd_mix='gate', dacd_delta=0.02, dacd_future=0, dacd_nested=0, dacd_refine=0, gtr_agg=0, apcm_patch_len=16, apcm_dim=32, apcm_latents=8, apcm_dropout=0.1, apcm_temperature=0.2, apcm_spectral=1, apcm_node_emb=0, chan_emb=0, fc_dropout=0.05, head_dropout=0.0, patch_len=16, stride=8, padding_patch='end', revin=0, affine=0, subtract_last=0, decomposition=0, kernel_size=25, individual=0, rnn_type='gru', dec_way='pmf', seg_len=48, channel_id=1, embed_type=0, enc_in=7, dec_in=7, c_out=7, d_model=512, n_heads=8, e_layers=2, d_layers=1, d_ff=2048, moving_avg=25, factor=1, distil=True, dropout=0.5, embed='timeF', activation='gelu', output_attention=False, do_predict=False, num_workers=0, itr=1, train_epochs=30, batch_size=256, patience=5, learning_rate=0.001, des='test', loss='mae', loss_freq=0.5, lradj='type3', pct_start=0.3, use_amp=False, use_gpu=True, gpu=0, use_multi_gpu=False, devices='0,1', test_flop=False)
+Use GPU: cuda:0
+>>>>>>>start training : APCM_MSESEL_ETTh2_96_APCM-FD5L1_s2025_GTRAPCM_ETTh2_ftM_sl96_pl96_cycle24_seed2025>>>>>>>>>>>>>>>>>>>>>>>>>>
+train 8449
+val 2785
+Epoch: 1 cost time: 0.936608076095581
+Epoch: 1, Steps: 33 | Train Loss: 1.9789195 Vali Loss: 1.5547279 Vali MSE: 0.2671815 Vali MAE: 0.3619974
+Validation selection metric decreased (inf --> 0.267181).  Saving model ...
+Updating learning rate to 0.001
+Epoch: 2 cost time: 0.319075345993042
+Epoch: 2, Steps: 33 | Train Loss: 1.6637147 Vali Loss: 1.3678892 Vali MSE: 0.2166707 Vali MAE: 0.3162305
+Validation selection metric decreased (0.267181 --> 0.216671).  Saving model ...
+Updating learning rate to 0.001
+Epoch: 3 cost time: 0.36231446266174316
+Epoch: 3, Steps: 33 | Train Loss: 1.5119985 Vali Loss: 1.3466248 Vali MSE: 0.2116635 Vali MAE: 0.3107495
+Validation selection metric decreased (0.216671 --> 0.211664).  Saving model ...
+Updating learning rate to 0.001
+Epoch: 4 cost time: 0.32791829109191895
+Epoch: 4, Steps: 33 | Train Loss: 1.4772396 Vali Loss: 1.3414932 Vali MSE: 0.2121080 Vali MAE: 0.3108487
+EarlyStopping counter: 1 out of 5
+Updating learning rate to 0.0008
+Epoch: 5 cost time: 0.30974292755126953
+Epoch: 5, Steps: 33 | Train Loss: 1.4577145 Vali Loss: 1.3407771 Vali MSE: 0.2150612 Vali MAE: 0.3119357
+EarlyStopping counter: 2 out of 5
+Updating learning rate to 0.0006400000000000002
+Epoch: 6 cost time: 0.30150604248046875
+Epoch: 6, Steps: 33 | Train Loss: 1.4437163 Vali Loss: 1.3407572 Vali MSE: 0.2158537 Vali MAE: 0.3117854
+EarlyStopping counter: 3 out of 5
+Updating learning rate to 0.0005120000000000001
+Epoch: 7 cost time: 0.3318462371826172
+Epoch: 7, Steps: 33 | Train Loss: 1.4346865 Vali Loss: 1.3342485 Vali MSE: 0.2123539 Vali MAE: 0.3096175
+EarlyStopping counter: 4 out of 5
+Updating learning rate to 0.0004096000000000001
+Epoch: 8 cost time: 0.32110071182250977
+Epoch: 8, Steps: 33 | Train Loss: 1.4272777 Vali Loss: 1.3386593 Vali MSE: 0.2169820 Vali MAE: 0.3117044
+EarlyStopping counter: 5 out of 5
+Early stopping
+Best checkpoint | Vali Loss: 1.3452094 Vali MSE: 0.2104287 Vali MAE: 0.3101335
+>>>>>>>testing : APCM_MSESEL_ETTh2_96_APCM-FD5L1_s2025_GTRAPCM_ETTh2_ftM_sl96_pl96_cycle24_seed2025<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+test 2785
+mse:0.28685542941093445, mae:0.33468374609947205

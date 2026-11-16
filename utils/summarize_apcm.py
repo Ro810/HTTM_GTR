@@ -7,7 +7,7 @@ import statistics
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT_DIR = os.path.join(ROOT, os.environ.get('APCM_OUT', 'results_apcm'))
+OUT_DIR = os.path.join(ROOT, os.environ.get('APCM_OUT', 'results_apcm_mse'))
 RESULTS = os.path.join(OUT_DIR, 'runs.jsonl')
 OUTPUT = os.path.join(OUT_DIR, 'summary.csv')
 

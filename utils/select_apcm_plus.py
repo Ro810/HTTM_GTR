@@ -1,19 +1,9 @@
-"""Build the final APCM+ result by model selection on the VALIDATION set.
+"""Select APCM+ variants using validation MSE only.
 
-For every (dataset, horizon), APCM+ is the candidate with the lowest mean
-validation loss over seeds.  All candidates are trained with the same
-objective, so their validation losses are directly comparable.  Test-set
-numbers are never used for the choice; they are only reported afterwards.
-
-Candidates (same loss, different architecture):
-    GTR-<LOSS>       author's GTR + new loss (APCM switched off)
-    APCM-<LOSS>      + adaptive partial channel mixing
-    APCM-CE-<LOSS>   + channel identity embedding
-
-Usage:
-    python utils/select_apcm_plus.py               # loss suffix FD5L1
-    python utils/select_apcm_plus.py --loss FD8
-Writes <APCM_OUT>/apcm_plus.csv and prints a table against GTR and the paper.
+Every candidate must have results for the same selection seeds. Test MSE/MAE
+are read only after the variant has been selected; they never affect the
+choice. This prevents test leakage and unfair comparisons caused by one
+variant having more completed seeds than another.
 """
 
 import argparse
@@ -27,43 +17,104 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from summarize_apcm import OUT_DIR, PAPER, RESULTS  # noqa: E402
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--loss', default='FD5L1', help='variant suffix of the shared loss')
-    args = parser.parse_args()
-    candidates = ['GTR-' + args.loss, 'APCM-' + args.loss, 'APCM-CE-' + args.loss]
-
-    with open(RESULTS, encoding='utf-8') as handle:
-        runs = [json.loads(line) for line in handle if line.strip()]
-
+def build_selection_rows(runs, loss_suffix='FD5L1', selection_seeds=None):
+    """Return selected result rows and human-readable skip warnings."""
+    candidates = ['GTR-' + loss_suffix, 'APCM-' + loss_suffix,
+                  'APCM-CE-' + loss_suffix]
+    requested_seeds = set(selection_seeds or [])
     groups = {}
     for run in runs:
         groups.setdefault((run['dataset'], int(run['pred_len'])), []).append(run)
 
     rows = []
+    warnings = []
     for (dataset, horizon), group in sorted(groups.items()):
-        gtr = {r['seed']: r for r in group if r['variant'] == 'GTR'}
-        scored = []
+        by_variant = {}
         for variant in candidates:
-            members = [r for r in group if r['variant'] == variant and r.get('best_vali') is not None]
-            if members:
-                scored.append((statistics.mean(r['best_vali'] for r in members), variant, members))
-        if not scored:
+            by_variant[variant] = {
+                int(run['seed']): run for run in group
+                if run['variant'] == variant and run.get('best_vali_mse') is not None
+            }
+
+        missing = [variant for variant in candidates if not by_variant[variant]]
+        if missing:
+            # Old result groups containing none of the corrected candidates are
+            # irrelevant. Partly completed corrected groups get a warning.
+            if len(missing) != len(candidates):
+                warnings.append('{} H{}: missing {}'.format(
+                    dataset, horizon, ', '.join(missing)))
             continue
-        _, chosen, members = min(scored)
-        mse = statistics.mean(r['mse'] for r in members)
-        mae = statistics.mean(r['mae'] for r in members)
-        paired = [r for r in members if r['seed'] in gtr]
+
+        common_seeds = set.intersection(*(set(by_variant[v]) for v in candidates))
+        chosen_seeds = requested_seeds or common_seeds
+        incomplete = [v for v in candidates if not chosen_seeds.issubset(by_variant[v])]
+        if not chosen_seeds or incomplete:
+            warnings.append('{} H{}: candidates do not share requested seeds {}'.format(
+                dataset, horizon, ','.join(map(str, sorted(chosen_seeds)))))
+            continue
+
+        scores = {
+            variant: statistics.mean(
+                float(by_variant[variant][seed]['best_vali_mse'])
+                for seed in chosen_seeds
+            )
+            for variant in candidates
+        }
+        chosen = min(candidates, key=lambda variant: (scores[variant], variant))
+
+        # After the variant is fixed, report every completed seed for it. The
+        # two seed columns in the CSV make selection and reporting transparent.
+        members = [by_variant[chosen][seed] for seed in sorted(by_variant[chosen])]
+        mse = statistics.mean(float(run['mse']) for run in members)
+        mae = statistics.mean(float(run['mae']) for run in members)
+        gtr = {int(run['seed']): run for run in group if run['variant'] == 'GTR'}
+        report_seed_set = {int(run['seed']) for run in members}
+        has_paired_gtr = report_seed_set.issubset(gtr)
         paper = PAPER.get((dataset, horizon), (None, None))
         rows.append({
-            'dataset': dataset, 'pred_len': horizon, 'chosen': chosen, 'n': len(members),
-            'mse': mse, 'mae': mae,
-            'gtr_mse': statistics.mean(gtr[r['seed']]['mse'] for r in paired) if paired else None,
-            'gtr_mae': statistics.mean(gtr[r['seed']]['mae'] for r in paired) if paired else None,
-            'paper_mse': paper[0], 'paper_mae': paper[1],
-            'candidates_tried': len(scored),
+            'dataset': dataset,
+            'pred_len': horizon,
+            'chosen': chosen,
+            'selection_metric': 'vali_mse',
+            'selection_seeds': ','.join(map(str, sorted(chosen_seeds))),
+            'report_seeds': ','.join(str(run['seed']) for run in members),
+            'mean_vali_mse': scores[chosen],
+            'n': len(members),
+            'mse': mse,
+            'mae': mae,
+            'gtr_mse': (statistics.mean(float(gtr[seed]['mse']) for seed in report_seed_set)
+                        if has_paired_gtr else None),
+            'gtr_mae': (statistics.mean(float(gtr[seed]['mae']) for seed in report_seed_set)
+                        if has_paired_gtr else None),
+            'paper_mse': paper[0],
+            'paper_mae': paper[1],
+            'candidates_tried': len(candidates),
         })
+    return rows, warnings
 
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--loss', default='FD5L1', help='variant suffix of the shared loss')
+    parser.add_argument(
+        '--selection_seeds', default='',
+        help='comma-separated seeds required for every candidate; default: shared seeds',
+    )
+    args = parser.parse_args()
+    selection_seeds = [int(x) for x in args.selection_seeds.split(',') if x]
+
+    if not os.path.exists(RESULTS):
+        raise SystemExit('No corrected results found at {}'.format(RESULTS))
+    with open(RESULTS, encoding='utf-8') as handle:
+        runs = [json.loads(line) for line in handle if line.strip()]
+
+    rows, warnings = build_selection_rows(runs, args.loss, selection_seeds or None)
+    for warning in warnings:
+        print('SKIP: ' + warning, file=sys.stderr)
+    if not rows:
+        raise SystemExit('No complete candidate groups with validation MSE were found')
+
+    os.makedirs(OUT_DIR, exist_ok=True)
     out = os.path.join(OUT_DIR, 'apcm_plus.csv')
     with open(out, 'w', newline='', encoding='utf-8') as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator='\n')
@@ -73,13 +124,13 @@ def main():
     def diff(a, b):
         return '' if a is None or b is None else '{:+.4f}'.format(b - a)
 
-    print('dataset         H  chosen (by validation)   n   MSE     MAE    dMSE/GTR dMAE/GTR dMSE/pap dMAE/pap')
-    for r in rows:
-        print('{:<12} {:>4}  {:<22} {:>2}  {:.4f}  {:.4f}  {:>8} {:>8} {:>8} {:>8}'.format(
-            r['dataset'], r['pred_len'], r['chosen'], r['n'], r['mse'], r['mae'],
-            diff(r['mse'], r['gtr_mse']), diff(r['mae'], r['gtr_mae']),
-            diff(r['mse'], r['paper_mse']), diff(r['mae'], r['paper_mae'])))
-    print('(positive d = APCM+ is lower = better)  Wrote {}'.format(out))
+    print('dataset         H  chosen (by val MSE)       n   MSE     MAE    dMSE/GTR dMAE/GTR dMSE/pap dMAE/pap')
+    for row in rows:
+        print('{:<12} {:>4}  {:<24} {:>2}  {:.4f}  {:.4f}  {:>8} {:>8} {:>8} {:>8}'.format(
+            row['dataset'], row['pred_len'], row['chosen'], row['n'], row['mse'], row['mae'],
+            diff(row['mse'], row['gtr_mse']), diff(row['mae'], row['gtr_mae']),
+            diff(row['mse'], row['paper_mse']), diff(row['mae'], row['paper_mae'])))
+    print('(positive d = selected model is lower = better) Wrote {}'.format(out))
 
 
 if __name__ == '__main__':

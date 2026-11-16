@@ -1,0 +1,47 @@
+-u run.py --is_training 1 --root_path ./dataset/ --data_path ETTh2.csv --model_id APCM_MSESEL_ETTh2_96_GTR_s2025 --data ETTh2 --features M --seq_len 96 --pred_len 96 --enc_in 7 --cycle 24 --batch_size 256 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5 --model GTR --itr 1 --random_seed 2025 --num_workers 0
+Args in experiment:
+Namespace(random_seed=2025, is_training=1, model_id='APCM_MSESEL_ETTh2_96_GTR_s2025', model='GTR', data='ETTh2', root_path='./dataset/', data_path='ETTh2.csv', features='M', target='OT', freq='h', checkpoints='./checkpoints/', seq_len=96, label_len=0, pred_len=96, cycle=24, model_type='mlp', use_revin=1, cycles='auto', dacd_mix='gate', dacd_delta=0.02, dacd_future=0, dacd_nested=0, dacd_refine=0, gtr_agg=0, apcm_patch_len=16, apcm_dim=32, apcm_latents=8, apcm_dropout=0.1, apcm_temperature=0.2, apcm_spectral=1, apcm_node_emb=0, chan_emb=0, fc_dropout=0.05, head_dropout=0.0, patch_len=16, stride=8, padding_patch='end', revin=0, affine=0, subtract_last=0, decomposition=0, kernel_size=25, individual=0, rnn_type='gru', dec_way='pmf', seg_len=48, channel_id=1, embed_type=0, enc_in=7, dec_in=7, c_out=7, d_model=512, n_heads=8, e_layers=2, d_layers=1, d_ff=2048, moving_avg=25, factor=1, distil=True, dropout=0.5, embed='timeF', activation='gelu', output_attention=False, do_predict=False, num_workers=0, itr=1, train_epochs=30, batch_size=256, patience=5, learning_rate=0.001, des='test', loss='mse', loss_freq=0.0, lradj='type3', pct_start=0.3, use_amp=False, use_gpu=True, gpu=0, use_multi_gpu=False, devices='0,1', test_flop=False)
+Use GPU: cuda:0
+>>>>>>>start training : APCM_MSESEL_ETTh2_96_GTR_s2025_GTR_ETTh2_ftM_sl96_pl96_cycle24_seed2025>>>>>>>>>>>>>>>>>>>>>>>>>>
+train 8449
+val 2785
+Epoch: 1 cost time: 1.082350730895996
+Epoch: 1, Steps: 33 | Train Loss: 0.5637941 Vali Loss: 0.2616099 Vali MSE: 0.2616099 Vali MAE: 0.3580452
+Validation selection metric decreased (inf --> 0.261610).  Saving model ...
+Updating learning rate to 0.001
+Epoch: 2 cost time: 0.54892897605896
+Epoch: 2, Steps: 33 | Train Loss: 0.4624027 Vali Loss: 0.2200783 Vali MSE: 0.2200783 Vali MAE: 0.3221292
+Validation selection metric decreased (0.261610 --> 0.220078).  Saving model ...
+Updating learning rate to 0.001
+Epoch: 3 cost time: 0.5336639881134033
+Epoch: 3, Steps: 33 | Train Loss: 0.4180779 Vali Loss: 0.2174220 Vali MSE: 0.2174220 Vali MAE: 0.3168606
+Validation selection metric decreased (0.220078 --> 0.217422).  Saving model ...
+Updating learning rate to 0.001
+Epoch: 4 cost time: 0.48830103874206543
+Epoch: 4, Steps: 33 | Train Loss: 0.4018306 Vali Loss: 0.2138015 Vali MSE: 0.2138015 Vali MAE: 0.3160227
+Validation selection metric decreased (0.217422 --> 0.213801).  Saving model ...
+Updating learning rate to 0.0008
+Epoch: 5 cost time: 0.5347094535827637
+Epoch: 5, Steps: 33 | Train Loss: 0.3901994 Vali Loss: 0.2147082 Vali MSE: 0.2147082 Vali MAE: 0.3152160
+EarlyStopping counter: 1 out of 5
+Updating learning rate to 0.0006400000000000002
+Epoch: 6 cost time: 0.5205790996551514
+Epoch: 6, Steps: 33 | Train Loss: 0.3792088 Vali Loss: 0.2148357 Vali MSE: 0.2148357 Vali MAE: 0.3149330
+EarlyStopping counter: 2 out of 5
+Updating learning rate to 0.0005120000000000001
+Epoch: 7 cost time: 0.5071732997894287
+Epoch: 7, Steps: 33 | Train Loss: 0.3665002 Vali Loss: 0.2177655 Vali MSE: 0.2177655 Vali MAE: 0.3157204
+EarlyStopping counter: 3 out of 5
+Updating learning rate to 0.0004096000000000001
+Epoch: 8 cost time: 0.5082988739013672
+Epoch: 8, Steps: 33 | Train Loss: 0.3596011 Vali Loss: 0.2156306 Vali MSE: 0.2156306 Vali MAE: 0.3135196
+EarlyStopping counter: 4 out of 5
+Updating learning rate to 0.0003276800000000001
+Epoch: 9 cost time: 0.5050790309906006
+Epoch: 9, Steps: 33 | Train Loss: 0.3527790 Vali Loss: 0.2157740 Vali MSE: 0.2157740 Vali MAE: 0.3145140
+EarlyStopping counter: 5 out of 5
+Early stopping
+Best checkpoint | Vali Loss: 0.2154720 Vali MSE: 0.2154720 Vali MAE: 0.3173406
+>>>>>>>testing : APCM_MSESEL_ETTh2_96_GTR_s2025_GTR_ETTh2_ftM_sl96_pl96_cycle24_seed2025<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+test 2785
+mse:0.29686474800109863, mae:0.3472915589809418

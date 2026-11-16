@@ -1,0 +1,43 @@
+-u run.py --is_training 1 --root_path ./dataset/ --data_path ETTh2.csv --model_id APCM_MSESEL_ETTh2_96_APCM-CE-FD5L1_s2025 --data ETTh2 --features M --seq_len 96 --pred_len 96 --enc_in 7 --cycle 24 --batch_size 256 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5 --model GTRAPCM --apcm_patch_len 16 --apcm_dim 32 --apcm_latents 8 --apcm_dropout 0.1 --apcm_temperature 0.2 --apcm_spectral 1 --chan_emb 1 --loss mae --loss_freq 0.5 --itr 1 --random_seed 2025 --num_workers 0
+Args in experiment:
+Namespace(random_seed=2025, is_training=1, model_id='APCM_MSESEL_ETTh2_96_APCM-CE-FD5L1_s2025', model='GTRAPCM', data='ETTh2', root_path='./dataset/', data_path='ETTh2.csv', features='M', target='OT', freq='h', checkpoints='./checkpoints/', seq_len=96, label_len=0, pred_len=96, cycle=24, model_type='mlp', use_revin=1, cycles='auto', dacd_mix='gate', dacd_delta=0.02, dacd_future=0, dacd_nested=0, dacd_refine=0, gtr_agg=0, apcm_patch_len=16, apcm_dim=32, apcm_latents=8, apcm_dropout=0.1, apcm_temperature=0.2, apcm_spectral=1, apcm_node_emb=0, chan_emb=1, fc_dropout=0.05, head_dropout=0.0, patch_len=16, stride=8, padding_patch='end', revin=0, affine=0, subtract_last=0, decomposition=0, kernel_size=25, individual=0, rnn_type='gru', dec_way='pmf', seg_len=48, channel_id=1, embed_type=0, enc_in=7, dec_in=7, c_out=7, d_model=512, n_heads=8, e_layers=2, d_layers=1, d_ff=2048, moving_avg=25, factor=1, distil=True, dropout=0.5, embed='timeF', activation='gelu', output_attention=False, do_predict=False, num_workers=0, itr=1, train_epochs=30, batch_size=256, patience=5, learning_rate=0.001, des='test', loss='mae', loss_freq=0.5, lradj='type3', pct_start=0.3, use_amp=False, use_gpu=True, gpu=0, use_multi_gpu=False, devices='0,1', test_flop=False)
+Use GPU: cuda:0
+>>>>>>>start training : APCM_MSESEL_ETTh2_96_APCM-CE-FD5L1_s2025_GTRAPCM_ETTh2_ftM_sl96_pl96_cycle24_seed2025>>>>>>>>>>>>>>>>>>>>>>>>>>
+train 8449
+val 2785
+Epoch: 1 cost time: 0.8152096271514893
+Epoch: 1, Steps: 33 | Train Loss: 1.9788850 Vali Loss: 1.5546683 Vali MSE: 0.2671778 Vali MAE: 0.3619951
+Validation selection metric decreased (inf --> 0.267178).  Saving model ...
+Updating learning rate to 0.001
+Epoch: 2 cost time: 0.3202641010284424
+Epoch: 2, Steps: 33 | Train Loss: 1.6635754 Vali Loss: 1.3680164 Vali MSE: 0.2167427 Vali MAE: 0.3162809
+Validation selection metric decreased (0.267178 --> 0.216743).  Saving model ...
+Updating learning rate to 0.001
+Epoch: 3 cost time: 0.3645792007446289
+Epoch: 3, Steps: 33 | Train Loss: 1.5115076 Vali Loss: 1.3468335 Vali MSE: 0.2117370 Vali MAE: 0.3108366
+Validation selection metric decreased (0.216743 --> 0.211737).  Saving model ...
+Updating learning rate to 0.001
+Epoch: 4 cost time: 0.32354736328125
+Epoch: 4, Steps: 33 | Train Loss: 1.4764326 Vali Loss: 1.3415813 Vali MSE: 0.2118865 Vali MAE: 0.3107285
+EarlyStopping counter: 1 out of 5
+Updating learning rate to 0.0008
+Epoch: 5 cost time: 0.32282567024230957
+Epoch: 5, Steps: 33 | Train Loss: 1.4564412 Vali Loss: 1.3409446 Vali MSE: 0.2149332 Vali MAE: 0.3117313
+EarlyStopping counter: 2 out of 5
+Updating learning rate to 0.0006400000000000002
+Epoch: 6 cost time: 0.29637718200683594
+Epoch: 6, Steps: 33 | Train Loss: 1.4417974 Vali Loss: 1.3416960 Vali MSE: 0.2161233 Vali MAE: 0.3118220
+EarlyStopping counter: 3 out of 5
+Updating learning rate to 0.0005120000000000001
+Epoch: 7 cost time: 0.3190317153930664
+Epoch: 7, Steps: 33 | Train Loss: 1.4319653 Vali Loss: 1.3362425 Vali MSE: 0.2133471 Vali MAE: 0.3101844
+EarlyStopping counter: 4 out of 5
+Updating learning rate to 0.0004096000000000001
+Epoch: 8 cost time: 0.2891688346862793
+Epoch: 8, Steps: 33 | Train Loss: 1.4240617 Vali Loss: 1.3426241 Vali MSE: 0.2192411 Vali MAE: 0.3132048
+EarlyStopping counter: 5 out of 5
+Early stopping
+Best checkpoint | Vali Loss: 1.3454483 Vali MSE: 0.2105130 Vali MAE: 0.3102316
+>>>>>>>testing : APCM_MSESEL_ETTh2_96_APCM-CE-FD5L1_s2025_GTRAPCM_ETTh2_ftM_sl96_pl96_cycle24_seed2025<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+test 2785
+mse:0.2867089509963989, mae:0.3345383107662201

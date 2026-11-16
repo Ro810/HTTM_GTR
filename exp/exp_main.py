@@ -65,7 +65,8 @@ class Exp_Main(Exp_Basic):
         return ForecastLoss(self.args.loss, getattr(self.args, 'loss_freq', 0.0))
 
     def vali(self, vali_data, vali_loader, criterion):
-        total_loss = []
+        totals = {'loss': 0.0, 'mse': 0.0, 'mae': 0.0}
+        total_samples = 0
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(vali_loader):
@@ -106,20 +107,28 @@ class Exp_Main(Exp_Basic):
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
 
-                pred = outputs.detach().cpu()
-                true = batch_y.detach().cpu()
+                pred = outputs.detach()
+                true = batch_y.detach()
+                batch_size = pred.shape[0]
 
-                loss = criterion(pred, true)
+                # The training objective may combine time- and frequency-domain
+                # errors, but model selection follows the paper's primary metric:
+                # validation MSE.  Weight by batch size so a short final batch does
+                # not receive the same influence as a full batch.
+                totals['loss'] += criterion(pred, true).item() * batch_size
+                totals['mse'] += torch.mean((pred - true) ** 2).item() * batch_size
+                totals['mae'] += torch.mean(torch.abs(pred - true)).item() * batch_size
+                total_samples += batch_size
 
-                total_loss.append(loss)
-        total_loss = np.average(total_loss)
+        if total_samples == 0:
+            raise RuntimeError('validation loader produced no samples')
+        metrics = {name: value / total_samples for name, value in totals.items()}
         self.model.train()
-        return total_loss
+        return metrics
 
     def train(self, setting):
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
-        test_data, test_loader = self._get_data(flag='test')
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -225,12 +234,16 @@ class Exp_Main(Exp_Basic):
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
-            vali_loss = self.vali(vali_data, vali_loader, criterion)
-            test_loss = self.vali(test_data, test_loader, criterion)
+            vali_metrics = self.vali(vali_data, vali_loader, criterion)
 
-            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
-                epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-            early_stopping(vali_loss, self.model, path)
+            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} "
+                  "Vali MSE: {4:.7f} Vali MAE: {5:.7f}".format(
+                      epoch + 1, train_steps, train_loss, vali_metrics['loss'],
+                      vali_metrics['mse'], vali_metrics['mae']))
+            # The final benchmark is ranked by MSE, so checkpoint selection and
+            # early stopping must use validation MSE rather than the composite
+            # FD5L1 training objective.  The test set is not evaluated per epoch.
+            early_stopping(vali_metrics['mse'], self.model, path)
             if early_stopping.early_stop:
                 print("Early stopping")
                 break
@@ -242,6 +255,13 @@ class Exp_Main(Exp_Basic):
 
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
+
+        # Emit the three validation metrics for the selected checkpoint.  The
+        # experiment runner records this exact line instead of mixing minima
+        # that may come from different epochs.
+        best_vali_metrics = self.vali(vali_data, vali_loader, criterion)
+        print("Best checkpoint | Vali Loss: {0:.7f} Vali MSE: {1:.7f} Vali MAE: {2:.7f}".format(
+            best_vali_metrics['loss'], best_vali_metrics['mse'], best_vali_metrics['mae']))
 
         # print(f"Max Memory (MB): {max_memory}")
 

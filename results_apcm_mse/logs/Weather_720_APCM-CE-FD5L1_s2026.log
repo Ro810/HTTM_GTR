@@ -1,0 +1,123 @@
+-u run.py --is_training 1 --root_path ./dataset/ --data_path weather.csv --model_id APCM_MSESEL_Weather_720_APCM-CE-FD5L1_s2026 --data custom --features M --seq_len 96 --pred_len 720 --enc_in 21 --cycle 144 --batch_size 64 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5 --model GTRAPCM --apcm_patch_len 16 --apcm_dim 32 --apcm_latents 8 --apcm_dropout 0.1 --apcm_temperature 0.2 --apcm_spectral 1 --chan_emb 1 --loss mae --loss_freq 0.5 --itr 1 --random_seed 2026 --num_workers 0
+Args in experiment:
+Namespace(random_seed=2026, is_training=1, model_id='APCM_MSESEL_Weather_720_APCM-CE-FD5L1_s2026', model='GTRAPCM', data='custom', root_path='./dataset/', data_path='weather.csv', features='M', target='OT', freq='h', checkpoints='./checkpoints/', seq_len=96, label_len=0, pred_len=720, cycle=144, model_type='mlp', use_revin=1, cycles='auto', dacd_mix='gate', dacd_delta=0.02, dacd_future=0, dacd_nested=0, dacd_refine=0, gtr_agg=0, apcm_patch_len=16, apcm_dim=32, apcm_latents=8, apcm_dropout=0.1, apcm_temperature=0.2, apcm_spectral=1, apcm_node_emb=0, chan_emb=1, fc_dropout=0.05, head_dropout=0.0, patch_len=16, stride=8, padding_patch='end', revin=0, affine=0, subtract_last=0, decomposition=0, kernel_size=25, individual=0, rnn_type='gru', dec_way='pmf', seg_len=48, channel_id=1, embed_type=0, enc_in=21, dec_in=7, c_out=7, d_model=512, n_heads=8, e_layers=2, d_layers=1, d_ff=2048, moving_avg=25, factor=1, distil=True, dropout=0.5, embed='timeF', activation='gelu', output_attention=False, do_predict=False, num_workers=0, itr=1, train_epochs=30, batch_size=64, patience=5, learning_rate=0.001, des='test', loss='mae', loss_freq=0.5, lradj='type3', pct_start=0.3, use_amp=False, use_gpu=True, gpu=0, use_multi_gpu=False, devices='0,1', test_flop=False)
+Use GPU: cuda:0
+>>>>>>>start training : APCM_MSESEL_Weather_720_APCM-CE-FD5L1_s2026_GTRAPCM_custom_ftM_sl96_pl720_cycle144_seed2026>>>>>>>>>>>>>>>>>>>>>>>>>>
+train 36072
+val 4551
+	iters: 100, epoch: 1 | loss: 4.3585296
+	speed: 0.0235s/iter; left time: 393.7869s
+	iters: 200, epoch: 1 | loss: 3.7904615
+	speed: 0.0092s/iter; left time: 154.0316s
+	iters: 300, epoch: 1 | loss: 3.9090116
+	speed: 0.0090s/iter; left time: 148.8153s
+	iters: 400, epoch: 1 | loss: 3.6759419
+	speed: 0.0087s/iter; left time: 142.9134s
+	iters: 500, epoch: 1 | loss: 3.4778736
+	speed: 0.0088s/iter; left time: 143.6887s
+Epoch: 1 cost time: 5.519882917404175
+Epoch: 1, Steps: 563 | Train Loss: 3.9617633 Vali Loss: 3.3574011 Vali MSE: 0.8551217 Vali MAE: 0.5609631
+Validation selection metric decreased (inf --> 0.855122).  Saving model ...
+Updating learning rate to 0.001
+	iters: 100, epoch: 2 | loss: 3.4470284
+	speed: 0.0184s/iter; left time: 298.4860s
+	iters: 200, epoch: 2 | loss: 3.5624533
+	speed: 0.0086s/iter; left time: 138.8750s
+	iters: 300, epoch: 2 | loss: 3.3998315
+	speed: 0.0087s/iter; left time: 140.0986s
+	iters: 400, epoch: 2 | loss: 3.5817678
+	speed: 0.0086s/iter; left time: 137.2331s
+	iters: 500, epoch: 2 | loss: 3.4004986
+	speed: 0.0085s/iter; left time: 135.3057s
+Epoch: 2 cost time: 4.869191408157349
+Epoch: 2, Steps: 563 | Train Loss: 3.4752392 Vali Loss: 3.1106575 Vali MSE: 0.6823135 Vali MAE: 0.4516089
+Validation selection metric decreased (0.855122 --> 0.682314).  Saving model ...
+Updating learning rate to 0.001
+	iters: 100, epoch: 3 | loss: 3.3470683
+	speed: 0.0183s/iter; left time: 286.9256s
+	iters: 200, epoch: 3 | loss: 3.3452275
+	speed: 0.0092s/iter; left time: 143.5196s
+	iters: 300, epoch: 3 | loss: 3.3317654
+	speed: 0.0091s/iter; left time: 141.0782s
+	iters: 400, epoch: 3 | loss: 3.5451834
+	speed: 0.0090s/iter; left time: 138.7359s
+	iters: 500, epoch: 3 | loss: 3.6228952
+	speed: 0.0090s/iter; left time: 136.9199s
+Epoch: 3 cost time: 5.066972970962524
+Epoch: 3, Steps: 563 | Train Loss: 3.3966426 Vali Loss: 3.1070430 Vali MSE: 0.6754499 Vali MAE: 0.4479373
+Validation selection metric decreased (0.682314 --> 0.675450).  Saving model ...
+Updating learning rate to 0.001
+	iters: 100, epoch: 4 | loss: 3.6442213
+	speed: 0.0193s/iter; left time: 291.4220s
+	iters: 200, epoch: 4 | loss: 3.3969471
+	speed: 0.0096s/iter; left time: 143.5983s
+	iters: 300, epoch: 4 | loss: 3.3282270
+	speed: 0.0098s/iter; left time: 146.2681s
+	iters: 400, epoch: 4 | loss: 3.2444875
+	speed: 0.0095s/iter; left time: 140.3153s
+	iters: 500, epoch: 4 | loss: 3.5753055
+	speed: 0.0098s/iter; left time: 143.3940s
+Epoch: 4 cost time: 5.391519069671631
+Epoch: 4, Steps: 563 | Train Loss: 3.3700918 Vali Loss: 3.1080177 Vali MSE: 0.6785615 Vali MAE: 0.4492563
+EarlyStopping counter: 1 out of 5
+Updating learning rate to 0.0008
+	iters: 100, epoch: 5 | loss: 3.2783511
+	speed: 0.0188s/iter; left time: 273.6579s
+	iters: 200, epoch: 5 | loss: 3.3882601
+	speed: 0.0093s/iter; left time: 134.2585s
+	iters: 300, epoch: 5 | loss: 3.4188523
+	speed: 0.0091s/iter; left time: 129.9696s
+	iters: 400, epoch: 5 | loss: 3.3060043
+	speed: 0.0091s/iter; left time: 129.3486s
+	iters: 500, epoch: 5 | loss: 3.4665031
+	speed: 0.0091s/iter; left time: 127.9754s
+Epoch: 5 cost time: 5.121000528335571
+Epoch: 5, Steps: 563 | Train Loss: 3.3483713 Vali Loss: 3.1040027 Vali MSE: 0.6784041 Vali MAE: 0.4485981
+EarlyStopping counter: 2 out of 5
+Updating learning rate to 0.0006400000000000002
+	iters: 100, epoch: 6 | loss: 3.2962878
+	speed: 0.0186s/iter; left time: 259.9764s
+	iters: 200, epoch: 6 | loss: 3.3401265
+	speed: 0.0086s/iter; left time: 119.2817s
+	iters: 300, epoch: 6 | loss: 3.1102433
+	speed: 0.0087s/iter; left time: 119.7632s
+	iters: 400, epoch: 6 | loss: 3.1898150
+	speed: 0.0087s/iter; left time: 119.4960s
+	iters: 500, epoch: 6 | loss: 3.1892486
+	speed: 0.0085s/iter; left time: 116.0029s
+Epoch: 6 cost time: 4.909066915512085
+Epoch: 6, Steps: 563 | Train Loss: 3.3339460 Vali Loss: 3.1075556 Vali MSE: 0.6842773 Vali MAE: 0.4500804
+EarlyStopping counter: 3 out of 5
+Updating learning rate to 0.0005120000000000001
+	iters: 100, epoch: 7 | loss: 3.4150817
+	speed: 0.0185s/iter; left time: 248.2448s
+	iters: 200, epoch: 7 | loss: 3.5670671
+	speed: 0.0088s/iter; left time: 117.1659s
+	iters: 300, epoch: 7 | loss: 2.9576297
+	speed: 0.0087s/iter; left time: 115.5803s
+	iters: 400, epoch: 7 | loss: 3.3590555
+	speed: 0.0089s/iter; left time: 116.8382s
+	iters: 500, epoch: 7 | loss: 3.5347879
+	speed: 0.0091s/iter; left time: 117.8810s
+Epoch: 7 cost time: 4.983087062835693
+Epoch: 7, Steps: 563 | Train Loss: 3.3211156 Vali Loss: 3.1082242 Vali MSE: 0.6832997 Vali MAE: 0.4506879
+EarlyStopping counter: 4 out of 5
+Updating learning rate to 0.0004096000000000001
+	iters: 100, epoch: 8 | loss: 3.0159760
+	speed: 0.0184s/iter; left time: 236.3052s
+	iters: 200, epoch: 8 | loss: 3.4556792
+	speed: 0.0089s/iter; left time: 113.2164s
+	iters: 300, epoch: 8 | loss: 3.5615396
+	speed: 0.0086s/iter; left time: 109.1209s
+	iters: 400, epoch: 8 | loss: 3.0155935
+	speed: 0.0087s/iter; left time: 109.2545s
+	iters: 500, epoch: 8 | loss: 3.6439495
+	speed: 0.0090s/iter; left time: 111.5935s
+Epoch: 8 cost time: 4.977362394332886
+Epoch: 8, Steps: 563 | Train Loss: 3.3093025 Vali Loss: 3.1036302 Vali MSE: 0.6772779 Vali MAE: 0.4483159
+EarlyStopping counter: 5 out of 5
+Early stopping
+Best checkpoint | Vali Loss: 3.1077949 Vali MSE: 0.6758374 Vali MAE: 0.4479869
+>>>>>>>testing : APCM_MSESEL_Weather_720_APCM-CE-FD5L1_s2026_GTRAPCM_custom_ftM_sl96_pl720_cycle144_seed2026<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+test 9820
+mse:0.3407686948776245, mae:0.3389706313610077

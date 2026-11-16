@@ -1,0 +1,83 @@
+-u run.py --is_training 1 --root_path ./dataset/ --data_path ETTm2.csv --model_id APCM_MSESEL_ETTm2_336_GTR-FD5L1_s2026 --data ETTm2 --features M --seq_len 96 --pred_len 336 --enc_in 7 --cycle 96 --batch_size 256 --learning_rate 0.001 --train_epochs 30 --patience 5 --dropout 0.5 --model GTR --loss mae --loss_freq 0.5 --itr 1 --random_seed 2026 --num_workers 0
+Args in experiment:
+Namespace(random_seed=2026, is_training=1, model_id='APCM_MSESEL_ETTm2_336_GTR-FD5L1_s2026', model='GTR', data='ETTm2', root_path='./dataset/', data_path='ETTm2.csv', features='M', target='OT', freq='h', checkpoints='./checkpoints/', seq_len=96, label_len=0, pred_len=336, cycle=96, model_type='mlp', use_revin=1, cycles='auto', dacd_mix='gate', dacd_delta=0.02, dacd_future=0, dacd_nested=0, dacd_refine=0, gtr_agg=0, apcm_patch_len=16, apcm_dim=32, apcm_latents=8, apcm_dropout=0.1, apcm_temperature=0.2, apcm_spectral=1, apcm_node_emb=0, chan_emb=0, fc_dropout=0.05, head_dropout=0.0, patch_len=16, stride=8, padding_patch='end', revin=0, affine=0, subtract_last=0, decomposition=0, kernel_size=25, individual=0, rnn_type='gru', dec_way='pmf', seg_len=48, channel_id=1, embed_type=0, enc_in=7, dec_in=7, c_out=7, d_model=512, n_heads=8, e_layers=2, d_layers=1, d_ff=2048, moving_avg=25, factor=1, distil=True, dropout=0.5, embed='timeF', activation='gelu', output_attention=False, do_predict=False, num_workers=0, itr=1, train_epochs=30, batch_size=256, patience=5, learning_rate=0.001, des='test', loss='mae', loss_freq=0.5, lradj='type3', pct_start=0.3, use_amp=False, use_gpu=True, gpu=0, use_multi_gpu=False, devices='0,1', test_flop=False)
+Use GPU: cuda:0
+>>>>>>>start training : APCM_MSESEL_ETTm2_336_GTR-FD5L1_s2026_GTR_ETTm2_ftM_sl96_pl336_cycle96_seed2026>>>>>>>>>>>>>>>>>>>>>>>>>>
+train 34129
+val 11185
+	iters: 100, epoch: 1 | loss: 2.2397580
+	speed: 0.0357s/iter; left time: 139.1016s
+Epoch: 1 cost time: 3.027888059616089
+Epoch: 1, Steps: 133 | Train Loss: 2.3380482 Vali Loss: 2.0121469 Vali MSE: 0.2350384 Vali MAE: 0.3386888
+Validation selection metric decreased (inf --> 0.235038).  Saving model ...
+Updating learning rate to 0.001
+	iters: 100, epoch: 2 | loss: 1.9797087
+	speed: 0.0299s/iter; left time: 112.2305s
+Epoch: 2 cost time: 2.3035428524017334
+Epoch: 2, Steps: 133 | Train Loss: 2.0084987 Vali Loss: 1.8751917 Vali MSE: 0.2110401 Vali MAE: 0.3111912
+Validation selection metric decreased (0.235038 --> 0.211040).  Saving model ...
+Updating learning rate to 0.001
+	iters: 100, epoch: 3 | loss: 1.9572370
+	speed: 0.0289s/iter; left time: 104.8293s
+Epoch: 3 cost time: 2.250556230545044
+Epoch: 3, Steps: 133 | Train Loss: 1.9339686 Vali Loss: 1.8582216 Vali MSE: 0.2065333 Vali MAE: 0.3073335
+Validation selection metric decreased (0.211040 --> 0.206533).  Saving model ...
+Updating learning rate to 0.001
+	iters: 100, epoch: 4 | loss: 1.9373884
+	speed: 0.0287s/iter; left time: 100.2807s
+Epoch: 4 cost time: 2.292914628982544
+Epoch: 4, Steps: 133 | Train Loss: 1.9085399 Vali Loss: 1.8502264 Vali MSE: 0.2069179 Vali MAE: 0.3061604
+EarlyStopping counter: 1 out of 5
+Updating learning rate to 0.0008
+	iters: 100, epoch: 5 | loss: 1.8877404
+	speed: 0.0294s/iter; left time: 98.6956s
+Epoch: 5 cost time: 2.2821290493011475
+Epoch: 5, Steps: 133 | Train Loss: 1.8915412 Vali Loss: 1.8478288 Vali MSE: 0.2074638 Vali MAE: 0.3068602
+EarlyStopping counter: 2 out of 5
+Updating learning rate to 0.0006400000000000002
+	iters: 100, epoch: 6 | loss: 1.8400507
+	speed: 0.0290s/iter; left time: 93.5711s
+Epoch: 6 cost time: 2.3138427734375
+Epoch: 6, Steps: 133 | Train Loss: 1.8809945 Vali Loss: 1.8454213 Vali MSE: 0.2072127 Vali MAE: 0.3062767
+EarlyStopping counter: 3 out of 5
+Updating learning rate to 0.0005120000000000001
+	iters: 100, epoch: 7 | loss: 1.8364178
+	speed: 0.0300s/iter; left time: 92.8882s
+Epoch: 7 cost time: 2.349928617477417
+Epoch: 7, Steps: 133 | Train Loss: 1.8730468 Vali Loss: 1.8416036 Vali MSE: 0.2048644 Vali MAE: 0.3050027
+Validation selection metric decreased (0.206533 --> 0.204864).  Saving model ...
+Updating learning rate to 0.0004096000000000001
+	iters: 100, epoch: 8 | loss: 1.8589411
+	speed: 0.0272s/iter; left time: 80.6248s
+Epoch: 8 cost time: 2.2089476585388184
+Epoch: 8, Steps: 133 | Train Loss: 1.8674785 Vali Loss: 1.8422265 Vali MSE: 0.2053164 Vali MAE: 0.3049991
+EarlyStopping counter: 1 out of 5
+Updating learning rate to 0.0003276800000000001
+	iters: 100, epoch: 9 | loss: 1.8734815
+	speed: 0.0299s/iter; left time: 84.3932s
+Epoch: 9 cost time: 2.3019988536834717
+Epoch: 9, Steps: 133 | Train Loss: 1.8621856 Vali Loss: 1.8426626 Vali MSE: 0.2063895 Vali MAE: 0.3054501
+EarlyStopping counter: 2 out of 5
+Updating learning rate to 0.0002621440000000001
+	iters: 100, epoch: 10 | loss: 1.8912014
+	speed: 0.0289s/iter; left time: 77.8524s
+Epoch: 10 cost time: 2.2672340869903564
+Epoch: 10, Steps: 133 | Train Loss: 1.8583166 Vali Loss: 1.8407554 Vali MSE: 0.2052153 Vali MAE: 0.3048258
+EarlyStopping counter: 3 out of 5
+Updating learning rate to 0.0002097152000000001
+	iters: 100, epoch: 11 | loss: 1.8712116
+	speed: 0.0299s/iter; left time: 76.5224s
+Epoch: 11 cost time: 2.347893476486206
+Epoch: 11, Steps: 133 | Train Loss: 1.8561111 Vali Loss: 1.8399634 Vali MSE: 0.2050747 Vali MAE: 0.3045823
+EarlyStopping counter: 4 out of 5
+Updating learning rate to 0.0001677721600000001
+	iters: 100, epoch: 12 | loss: 1.8771285
+	speed: 0.0301s/iter; left time: 73.1555s
+Epoch: 12 cost time: 2.3551225662231445
+Epoch: 12, Steps: 133 | Train Loss: 1.8533964 Vali Loss: 1.8408745 Vali MSE: 0.2058658 Vali MAE: 0.3050691
+EarlyStopping counter: 5 out of 5
+Early stopping
+Best checkpoint | Vali Loss: 1.8411113 Vali MSE: 0.2045722 Vali MAE: 0.3047802
+>>>>>>>testing : APCM_MSESEL_ETTm2_336_GTR-FD5L1_s2026_GTR_ETTm2_ftM_sl96_pl336_cycle96_seed2026<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+test 11185
+mse:0.2834203243255615, mae:0.3221246898174286

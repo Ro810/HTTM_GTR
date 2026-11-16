@@ -1,5 +1,11 @@
 # GTR-APCM: hướng dẫn chạy và tiêu chí quyết định
 
+> Giao thức hiện tại (`val_mse_v2`): loss FD5L1 vẫn dùng để cập nhật trọng số,
+> nhưng early stopping, checkpoint và chọn biến thể đều dùng **validation MSE**.
+> Test chỉ chạy đúng một lần sau khi đã nạp checkpoint tốt nhất. Kết quả mới
+> được tách vào `results_apcm_mse/`; `results_apcm/` là kết quả giao thức cũ,
+> không được trộn vào bảng cuối.
+
 `GTRAPCM` giữ nguyên đường dự báo của GTR và thêm **Adaptive Partial Channel Mixing** (APCM):
 
 - chia cửa sổ thành patch không chồng lấn;
@@ -25,7 +31,8 @@ Chạy tuần tự GTR, GTA và APCM trên Electricity-96 và PEMS08-12, seed 20
 python utils/run_apcm_experiments.py --stage screen
 ```
 
-Kết quả nằm trong `results_apcm/runs.jsonl`, log đầy đủ nằm trong `results_apcm/logs/`. Có thể dừng và chạy lại; job hoàn thành sẽ được bỏ qua.
+Kết quả nằm trong `results_apcm_mse/runs.jsonl`, log đầy đủ nằm trong
+`results_apcm_mse/logs/`. Có thể dừng và chạy lại; job hoàn thành sẽ được bỏ qua.
 
 Tổng hợp MSE/MAE, phần trăm cải thiện ghép cặp cùng seed và số seed thắng GTR:
 
@@ -82,6 +89,30 @@ So sánh tối thiểu:
 3. `GTRAPCM`: phương pháp đề xuất.
 
 Không kết luận từ một seed. Báo trung bình và độ lệch chuẩn của MSE/MAE qua seed 2024, 2025, 2026. Chỉ tuyên bố cải thiện ổn định nếu APCM tốt hơn GTR ở ít nhất 2/3 seed và MSE trung bình thấp hơn độ dao động giữa các seed.
+
+Ba ứng viên `GTR-FD5L1`, `APCM-FD5L1`, `APCM-CE-FD5L1` chỉ được so trên
+cùng tập seed. Lệnh chọn cuối là:
+
+```powershell
+python utils/select_apcm_plus.py --loss FD5L1 --selection_seeds 2024,2025,2026
+```
+
+Nếu một ứng viên thiếu seed, cấu hình đó bị bỏ qua và in `SKIP`, thay vì lấy
+trung bình lệch số lần chạy. Cột `selection_seeds` và `report_seeds` trong CSV
+cho biết chính xác seed nào đã dùng.
+
+Trên Windows PowerShell, chạy các bộ nhanh trước (không có Traffic) bằng:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/APCM_PLUS/run_all.ps1 stage1
+powershell -ExecutionPolicy Bypass -File scripts/APCM_PLUS/run_all.ps1 stage2
+```
+
+Chạy lại cùng lệnh sẽ tự bỏ qua job đã có trong `runs.jsonl`. Traffic để sau:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/APCM_PLUS/run_all.ps1 stage3
+```
 
 ## 6. Thử nghiệm mới (12/11/2026): APCM-NE và tắt RevIN
 
