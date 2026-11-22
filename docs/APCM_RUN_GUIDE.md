@@ -146,3 +146,65 @@ Quy tắc dừng, đặt trước khi chạy:
 - Tắt RevIN chỉ dùng nếu APCM-noRevIN thấp hơn APCM ở cả hai horizon. Khi báo cáo phải ghi rõ đây là đổi cấu hình theo Bảng 8, không phải cải tiến phương pháp.
 
 Ước lượng thời gian trên GPU (theo thời gian/epoch cũ): PEMS khoảng 3–5 phút mỗi lần, Electricity khoảng 10 phút, Traffic-96 khoảng 1,5 giờ.
+
+## 7. Tinh chỉnh theo từng dataset (22/11/2026)
+
+Mục tiêu: đưa ETTm1, ETTm2, PEMS03, Electricity và Weather lên mức giảm MSE
+trung bình ít nhất 0.01 so với GTR chạy lại cùng seed. Mỗi dataset chọn **một**
+phương án cho cả bốn horizon, chỉ dựa trên validation MSE.
+
+Phương án mới trong `utils/run_apcm_experiments.py`:
+
+| Hướng | Phương án | Cờ thêm | Dataset |
+|---|---|---|---|
+| Hàm loss | `GTR-MAE`, `GTR-HY`, `GTR-FD8`, `APCM-CE-FD8`, `APCM-CE-HY` (đã có sẵn) | | ETTm1, ETTm2, Weather |
+| Learning rate | `GTR-FD5L1`, `APCM-FD5L1`, `APCM-CE-FD5L1` kèm hậu tố `-LR5e4` hoặc `-LR2e3` | `--learning_rate 0.0005` / `0.002` | ETTm1, ETTm2, Weather |
+| Tắt RevIN | `GTR-FD5L1-noRevIN`, `APCM-CE-FD5L1-noRevIN` | `--use_revin 0` | Electricity |
+| Sức chứa APCM | `APCM-FD5L1-K4`, `APCM-FD5L1-K16`, `APCM-FD5L1-P8` | `--apcm_latents 4/16`, `--apcm_patch_len 8` | PEMS03 |
+| A. Chu kỳ tương lai | hậu tố `-FC` trên GTR-FD5L1, APCM-FD5L1, APCM-CE-FD5L1 | `--future_cycle 1` | cả 5 dataset |
+| B. Trung bình trọng số | hậu tố `-EMA`, kết hợp `-FC-EMA` | `--ema_decay 0.999` | cả 5 dataset |
+
+GTR-FD5L1 cũng được thử learning rate để baseline có cùng ngân sách tinh chỉnh.
+
+**A. Chu kỳ tương lai (`--future_cycle 1`).** GTR gốc chỉ tra bảng chu kỳ `Q` cho
+cửa sổ đầu vào. Khi bật cờ, mô hình trừ `Q` của cửa sổ đầu vào khỏi input (chỉ
+học phần dư không theo chu kỳ), rồi cộng `Q` tại các vị trí
+`cycle_index + seq_len … + seq_len + pred_len` vào đầu ra trước khi đảo RevIN.
+Vì `Q` khởi tạo bằng 0, mô hình lúc bắt đầu trùng GTR (có test), và không thêm
+tham số. Ý tưởng tương tự CycleNet (NeurIPS 2024).
+
+**B. EMA (`--ema_decay 0.999`).** Giữ trung bình động của trọng số, hệ số khởi
+động `min(0.999, (1+n)/(10+n))`. Validation, checkpoint và test dùng trọng số
+EMA; vẫn là một mô hình, không phải ensemble.
+`GTR-noRevIN` chỉ để tham khảo, không phải ứng viên.
+
+Chạy (tự bỏ qua job đã có trong `runs.jsonl`):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/APCM_TUNING/run_all.ps1 stage1  # ETTm1, ETTm2: 408 job, ~7,5 giờ
+powershell -ExecutionPolicy Bypass -File scripts/APCM_TUNING/run_all.ps1 stage2  # PEMS03: 149 job, ~12,5 giờ
+powershell -ExecutionPolicy Bypass -File scripts/APCM_TUNING/run_all.ps1 stage3  # Electricity: 148 job, ~20 giờ
+powershell -ExecutionPolicy Bypass -File scripts/APCM_TUNING/run_all.ps1 stage4  # Weather: 204 job, ~7 giờ
+powershell -ExecutionPolicy Bypass -File scripts/APCM_TUNING/run_all.ps1 select  # chỉ chạy lại bước chọn
+```
+
+Trên Linux/macOS dùng `bash scripts/APCM_TUNING/run_all.sh stage1` với cùng tên stage.
+
+Chọn theo dataset (script tự gọi sau mỗi stage):
+
+```bash
+python utils/select_apcm_plus.py --per_dataset --only ETTm1,ETTm2 \
+  --candidates <danh sách ứng viên> --selection_seeds 2024,2025,2026 --tag ett
+```
+
+Điểm của mỗi ứng viên là trung bình qua các horizon của
+(validation MSE ứng viên ÷ validation MSE ứng viên đầu tiên). Ứng viên có điểm
+thấp nhất được chọn. Test MSE/MAE chỉ được đọc sau khi đã chọn. Kết quả nằm ở
+`results_apcm_mse/per_dataset_<tag>.txt` và `.csv`. Cột `dMSE/GTR` là mức giảm
+MSE trung bình so với GTR cùng seed, cột cuối đánh dấu có đạt 0.01 hay không.
+
+Quy tắc đặt trước khi chạy:
+
+- Danh sách ứng viên cố định như trong `scripts/APCM_TUNING/run_all.ps1`, không thêm bớt sau khi thấy kết quả test.
+- Chỉ báo cáo phương án do validation chọn, đủ 3 seed và 4 horizon.
+- Tắt RevIN phải ghi rõ là đổi cấu hình theo Bảng 8 của tác giả.
