@@ -1,6 +1,6 @@
 import unittest
 
-from utils.select_apcm_plus import build_selection_rows
+from utils.select_apcm_plus import build_dataset_rows, build_selection_rows
 from utils.run_apcm_experiments import parse_run_output
 
 
@@ -61,6 +61,46 @@ class SelectApcmPlusTest(unittest.TestCase):
 
         self.assertEqual(rows, [])
         self.assertEqual(len(warnings), 1)
+
+    def test_per_dataset_picks_one_variant_by_validation_not_test(self):
+        def at(variant, horizon, val_mse, test_mse):
+            row = run(variant, 2024, val_mse, test_mse)
+            row['pred_len'] = horizon
+            return row
+
+        runs = [
+            # A wins on validation at both horizons but loses on test.
+            at('A', 96, 0.10, 0.50), at('B', 96, 0.20, 0.10),
+            at('A', 720, 0.30, 0.60), at('B', 720, 0.40, 0.20),
+            at('GTR', 96, 0.25, 0.55), at('GTR', 720, 0.45, 0.70),
+        ]
+
+        rows, summaries, warnings = build_dataset_rows(runs, ['B', 'A'])
+
+        self.assertEqual(warnings, [])
+        self.assertEqual({row['chosen'] for row in rows}, {'A'})
+        self.assertAlmostEqual(summaries[0]['mse'], 0.55)
+        self.assertAlmostEqual(summaries[0]['d_mse_vs_gtr'], 0.075)
+        self.assertTrue(summaries[0]['meets_threshold'])
+
+    def test_per_dataset_skips_when_a_candidate_misses_a_horizon(self):
+        runs = [run('A', 2024, 0.1, 0.1), run('B', 2024, 0.2, 0.2)]
+        other = run('A', 2024, 0.1, 0.1)
+        other['pred_len'] = 720
+        runs.append(other)
+
+        rows, summaries, warnings = build_dataset_rows(runs, ['A', 'B'])
+
+        self.assertEqual((rows, summaries), ([], []))
+        self.assertIn('B H720', warnings[0])
+
+    def test_custom_candidate_list_is_used_per_horizon(self):
+        runs = [run('X', 2024, 0.2, 0.2), run('Y', 2024, 0.1, 0.3)]
+
+        rows, warnings = build_selection_rows(runs, candidates=['X', 'Y'])
+
+        self.assertEqual(warnings, [])
+        self.assertEqual(rows[0]['chosen'], 'Y')
 
     def test_runner_records_same_selected_checkpoint_metrics(self):
         output = (

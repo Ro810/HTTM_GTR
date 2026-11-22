@@ -98,6 +98,28 @@ for _name, _flags in _EXTRA.items():
     if not _name.startswith('CE'):
         VARIANTS['GTR-' + _name] = '--model GTR ' + _flags
 
+# Per-dataset tuning candidates (docs/APCM_RUN_GUIDE.md, section 7). Flags are
+# appended after the dataset defaults, so argparse keeps these later values.
+# Learning-rate variants are also given to GTR-FD5L1 so the baseline gets the
+# same tuning budget as APCM.
+for _base in ('GTR-FD5L1', 'APCM-FD5L1', 'APCM-CE-FD5L1'):
+    for _tag, _lr in (('LR5e4', '0.0005'), ('LR2e3', '0.002')):
+        VARIANTS['{}-{}'.format(_base, _tag)] = VARIANTS[_base] + ' --learning_rate ' + _lr
+# RevIN off with the new objective (author's Table 8 favours it on Electricity).
+for _base in ('GTR-FD5L1', 'APCM-CE-FD5L1'):
+    VARIANTS[_base + '-noRevIN'] = VARIANTS[_base] + ' --use_revin 0'
+# APCM capacity: number of latent groups K and patch length.
+VARIANTS['APCM-FD5L1-K4'] = VARIANTS['APCM-FD5L1'] + ' --apcm_latents 4'
+VARIANTS['APCM-FD5L1-K16'] = VARIANTS['APCM-FD5L1'] + ' --apcm_latents 16'
+VARIANTS['APCM-FD5L1-P8'] = VARIANTS['APCM-FD5L1'] + ' --apcm_patch_len 8'
+# Method extensions: FC = forecast the residual after removing the retrieved
+# cycle and add Q of the forecast window back; EMA = moving average of weights
+# used for validation, checkpoint and test. Both start exactly at the base.
+for _base in ('GTR-FD5L1', 'APCM-FD5L1', 'APCM-CE-FD5L1'):
+    VARIANTS[_base + '-FC'] = VARIANTS[_base] + ' --future_cycle 1'
+    VARIANTS[_base + '-EMA'] = VARIANTS[_base] + ' --ema_decay 0.999'
+    VARIANTS[_base + '-FC-EMA'] = VARIANTS[_base] + ' --future_cycle 1 --ema_decay 0.999'
+
 
 def job_key(dataset, horizon, variant, seed):
     return '{}_{}_{}_s{}'.format(dataset, horizon, variant, seed)
