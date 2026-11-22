@@ -70,6 +70,12 @@ parser.add_argument('--apcm_node_emb', type=int, default=0,
                     help='GTRAPCM: add a learnable per-channel identity to the routing (APCM-NE, 1/0)')
 parser.add_argument('--chan_emb', type=int, default=0,
                     help='GTRAPCM: learnable per-channel embedding added to the d_model features (APCM-CE, 1/0)')
+parser.add_argument('--future_cycle', type=int, default=0,
+                    help='GTR/GTRAPCM: remove the retrieved cycle Q from the input and add Q of the '
+                         'forecast window back to the output (1/0); identical to GTR at init since Q=0')
+parser.add_argument('--ema_decay', type=float, default=0.0,
+                    help='exponential moving average of weights used for validation, checkpoint and '
+                         'test (e.g. 0.999); 0 = off')
 
 # PatchTST
 parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')

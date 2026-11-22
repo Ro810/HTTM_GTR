@@ -71,6 +71,37 @@ class EarlyStopping:
         self.val_loss_min = val_loss
 
 
+class ModelEMA:
+    """Exponential moving average of a model's floating-point weights.
+
+    The decay warms up as min(decay, (1 + n) / (10 + n)) so early averages are
+    not dominated by the random initialization. `swap(model)` exchanges the
+    live and averaged weights in place; calling it twice restores training.
+    """
+
+    def __init__(self, model, decay):
+        self.decay = decay
+        self.updates = 0
+        self.shadow = {k: v.detach().clone() for k, v in model.state_dict().items()
+                       if v.dtype.is_floating_point}
+
+    @torch.no_grad()
+    def update(self, model):
+        self.updates += 1
+        d = min(self.decay, (1 + self.updates) / (10 + self.updates))
+        for k, v in model.state_dict().items():
+            if k in self.shadow:
+                self.shadow[k].mul_(d).add_(v.detach(), alpha=1 - d)
+
+    @torch.no_grad()
+    def swap(self, model):
+        state = model.state_dict()
+        for k, avg in self.shadow.items():
+            live = state[k].detach().clone()
+            state[k].copy_(avg)
+            avg.copy_(live)
+
+
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.get

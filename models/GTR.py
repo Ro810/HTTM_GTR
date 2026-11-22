@@ -3,6 +3,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+def future_cycle(Q, cycle_index, seq_len, pred_len):
+    """Retrieve the learned cycle Q for the forecast window, shape (B, pred_len, C)."""
+    offsets = torch.arange(seq_len, seq_len + pred_len, device=cycle_index.device)
+    return Q[(cycle_index.view(-1, 1) + offsets.view(1, -1)) % Q.shape[0]]
+
+
 class GTR(nn.Module):
     def __init__(self, d_series, c, CI=False, period_len=24):
         
@@ -66,6 +72,7 @@ class Model(nn.Module):
         self.dropout = configs.dropout
         self.use_revin = configs.use_revin
         self.individual = configs.individual
+        self.future_cycle = bool(getattr(configs, 'future_cycle', 0))
 
         self.Q = nn.Parameter(torch.zeros(self.cycle_len, self.enc_in), requires_grad=True)
         self.GTR = GTR(d_series=self.seq_len, c=self.enc_in, CI=self.individual)
@@ -92,19 +99,24 @@ class Model(nn.Module):
             seq_var = torch.var(x, dim=1, keepdim=True) + 1e-5
             x = (x - seq_mean) / torch.sqrt(seq_var)
 
-        # (B, S, C) -> (B, C, S)
-        x_input = x.permute(0, 2, 1)
-
         # GTR part
         gather_index = (cycle_index.view(-1, 1) +
                         torch.arange(self.seq_len, device=cycle_index.device).view(1, -1)) % self.cycle_len
         query_input = self.Q[gather_index].permute(0, 2, 1)
+
+        # (B, S, C) -> (B, C, S); with future_cycle the model sees only the
+        # part of the window not explained by the retrieved cycle.
+        x_input = x.permute(0, 2, 1)
+        if self.future_cycle:
+            x_input = x_input - query_input
         global_information = self.GTR(x_input, query_input)
 
         # Projection + MLP
         input_proj = self.input_proj(x_input + global_information)
         hidden = self.model(input_proj)
         output = self.output_proj(hidden + input_proj).permute(0, 2, 1)
+        if self.future_cycle:
+            output = output + future_cycle(self.Q, cycle_index, self.seq_len, self.pred_len)
 
         # RevIN de-normalize
         if self.use_revin:

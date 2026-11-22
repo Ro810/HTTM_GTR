@@ -16,7 +16,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from models.GTR import GTR
+from models.GTR import GTR, future_cycle
 
 
 class AdaptivePartialChannelMixer(nn.Module):
@@ -144,6 +144,7 @@ class Model(nn.Module):
         self.dropout = configs.dropout
         self.use_revin = configs.use_revin
         self.individual = configs.individual
+        self.future_cycle = bool(getattr(configs, 'future_cycle', 0))
 
         # Keep this construction order identical to models/GTR.py so the base
         # parameters have identical initialization for the same random seed.
@@ -191,11 +192,14 @@ class Model(nn.Module):
             seq_var = torch.var(x, dim=1, keepdim=True) + 1e-5
             x = (x - seq_mean) / torch.sqrt(seq_var)
 
-        x_input = x.permute(0, 2, 1)  # (B, C, T)
-
         gather_index = (cycle_index.view(-1, 1) +
                         torch.arange(self.seq_len, device=cycle_index.device).view(1, -1)) % self.cycle_len
         query_input = self.Q[gather_index].permute(0, 2, 1)
+
+        x_input = x.permute(0, 2, 1)  # (B, C, T)
+        if self.future_cycle:
+            # Model only what the retrieved cycle does not explain (see GTR.py).
+            x_input = x_input - query_input
         global_information = self.GTR(x_input, query_input)
 
         gtr_features = x_input + global_information
@@ -206,6 +210,8 @@ class Model(nn.Module):
             input_proj = input_proj + self.channel_emb  # (B, C, D) + (C, D)
         hidden = self.model(input_proj)
         output = self.output_proj(hidden + input_proj).permute(0, 2, 1)
+        if self.future_cycle:
+            output = output + future_cycle(self.Q, cycle_index, self.seq_len, self.pred_len)
 
         if self.use_revin:
             output = output * torch.sqrt(seq_var) + seq_mean

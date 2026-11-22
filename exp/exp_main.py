@@ -2,7 +2,7 @@ from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
 from models import Informer, Autoformer, Transformer, DLinear, Linear, NLinear, PatchTST, SegRNN, CycleNet, \
     iTransformer, TimeXer, GTR, GTRDLinear, GTRPatchTST, GTRiTransformer, GTRDACD, GTRAPCM
-from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
+from utils.tools import EarlyStopping, ModelEMA, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
 from utils.losses import ForecastLoss
 
@@ -151,6 +151,9 @@ class Exp_Main(Exp_Basic):
                                             epochs=self.args.train_epochs,
                                             max_lr=self.args.learning_rate)
 
+        ema_decay = getattr(self.args, 'ema_decay', 0.0)
+        ema = ModelEMA(self.model, ema_decay) if ema_decay > 0 else None
+
         for epoch in range(self.args.train_epochs):
             iter_count = 0
             train_loss = []
@@ -224,6 +227,8 @@ class Exp_Main(Exp_Basic):
                 else:
                     loss.backward()
                     model_optim.step()
+                if ema is not None:
+                    ema.update(self.model)
 
                 # current_memory = torch.cuda.max_memory_allocated() / 1024 ** 2
                 # max_memory = max(max_memory, current_memory)
@@ -234,6 +239,10 @@ class Exp_Main(Exp_Basic):
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
+            # With EMA, validation and the saved checkpoint use the averaged
+            # weights; the live weights are swapped back before training resumes.
+            if ema is not None:
+                ema.swap(self.model)
             vali_metrics = self.vali(vali_data, vali_loader, criterion)
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} "
@@ -244,6 +253,8 @@ class Exp_Main(Exp_Basic):
             # early stopping must use validation MSE rather than the composite
             # FD5L1 training objective.  The test set is not evaluated per epoch.
             early_stopping(vali_metrics['mse'], self.model, path)
+            if ema is not None:
+                ema.swap(self.model)
             if early_stopping.early_stop:
                 print("Early stopping")
                 break

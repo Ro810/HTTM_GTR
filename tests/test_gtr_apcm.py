@@ -127,3 +127,56 @@ def test_channel_embedding_starts_at_apcm():
     with torch.no_grad():
         assert torch.allclose(plain(x, idx), with_ce(x, idx))
     assert with_ce.channel_emb.shape == (cfg.enc_in, cfg.d_model)
+
+
+def test_future_cycle_starts_exactly_at_gtr_baseline():
+    torch.manual_seed(11)
+    baseline = GTR.Model(configs()).eval()
+    x = torch.randn(3, 24, 7)
+    idx = torch.tensor([0, 7, 23])
+    for model_cls in (GTR, GTRAPCM):
+        torch.manual_seed(11)
+        model = model_cls.Model(configs(future_cycle=1)).eval()
+        with torch.no_grad():
+            torch.testing.assert_close(model(x, idx), baseline(x, idx), rtol=0, atol=0)
+
+
+def test_future_cycle_adds_q_of_the_forecast_window():
+    # With the forecasting head silenced the output must be exactly the
+    # retrieved cycle at positions cycle_index + seq_len ... + seq_len + pred_len.
+    cfg = configs(future_cycle=1, use_revin=0)
+    for model_cls in (GTR, GTRAPCM):
+        model = model_cls.Model(cfg).eval()
+        with torch.no_grad():
+            model.Q.copy_(torch.randn_like(model.Q))
+            model.output_proj[1].weight.zero_()
+            model.output_proj[1].bias.zero_()
+        idx = torch.tensor([0, 5])
+        with torch.no_grad():
+            out = model(torch.randn(2, cfg.seq_len, cfg.enc_in), idx)
+        for b, start in enumerate(idx.tolist()):
+            rows = [(start + cfg.seq_len + t) % cfg.cycle for t in range(cfg.pred_len)]
+            torch.testing.assert_close(out[b], model.Q[rows])
+
+
+def test_future_cycle_gives_q_a_gradient_through_the_output():
+    model = GTR.Model(configs(future_cycle=1)).train()
+    model(torch.randn(2, 24, 7), torch.tensor([0, 4])).square().mean().backward()
+    assert model.Q.grad is not None and model.Q.grad.abs().sum() > 0
+
+
+def test_model_ema_averages_and_swaps_back():
+    from utils.tools import ModelEMA
+    model = torch.nn.Linear(2, 1)
+    with torch.no_grad():
+        model.weight.fill_(1.0)
+    ema = ModelEMA(model, decay=0.5)
+    with torch.no_grad():
+        model.weight.fill_(3.0)
+    ema.update(model)  # warm-up decay = min(0.5, 2/11) = 2/11
+    expected = 1.0 * 2 / 11 + 3.0 * 9 / 11
+    torch.testing.assert_close(ema.shadow['weight'], torch.full((1, 2), expected))
+    ema.swap(model)
+    torch.testing.assert_close(model.weight.data, torch.full((1, 2), expected))
+    ema.swap(model)
+    torch.testing.assert_close(model.weight.data, torch.full((1, 2), 3.0))
